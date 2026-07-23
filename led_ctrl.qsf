@@ -1,0 +1,71 @@
+# -------------------------------------------------------------------------- #
+# led_ctrl -- MSA-2020 (A-2020) LED 上位机控制示例 (JTAG-Avalon 桥)
+#
+# 器件/供电/配置相关全局参数沿用官方 blink 示例 (开发手册 1.4 节要求:
+# VID 供电参数必须按此配置, 否则可能导致核心工作不正常或烧毁板卡)
+# -------------------------------------------------------------------------- #
+
+set_global_assignment -name FAMILY "Stratix 10"
+set_global_assignment -name TOP_LEVEL_ENTITY led_ctrl
+set_global_assignment -name DEVICE 1SG280LN2F43E2VG
+set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "ACTIVE SERIAL X4"
+
+# ---- VID / 电源管理配置 (必须与 blink 示例保持一致, 切勿修改) ----
+set_global_assignment -name PWRMGT_SLAVE_DEVICE_TYPE OTHER
+set_global_assignment -name PWRMGT_SLAVE_DEVICE0_ADDRESS 60
+set_global_assignment -name PWRMGT_VOLTAGE_OUTPUT_FORMAT "DIRECT FORMAT"
+set_global_assignment -name PWRMGT_DIRECT_FORMAT_COEFFICIENT_M 1
+set_global_assignment -name PWRMGT_TRANSLATED_VOLTAGE_VALUE_UNIT MILLIVOLTS
+set_global_assignment -name USE_PWRMGT_SCL SDM_IO14
+set_global_assignment -name USE_PWRMGT_SDA SDM_IO11
+
+# ---- 配置引脚 (与 blink 示例一致) ----
+set_global_assignment -name ACTIVE_SERIAL_CLOCK AS_FREQ_115MHZ_IOSC
+set_global_assignment -name USE_CONF_DONE SDM_IO16
+set_global_assignment -name USE_INIT_DONE SDM_IO0
+set_global_assignment -name USE_CVP_CONFDONE SDM_IO13
+
+# ---- 工程文件 ----
+set_global_assignment -name VERILOG_FILE led_ctrl.v
+set_global_assignment -name VERILOG_FILE led_ctrl_core.v
+set_global_assignment -name QSYS_FILE jtag_sys.qsys
+set_global_assignment -name SDC_FILE led_ctrl.sdc
+
+# ---- 综合/温度设置 ----
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 8
+
+# ---- 引脚约束: 100 MHz 时钟 + 9 个用户 LED (来自 blink / PINDEF) ----
+set_instance_assignment -name IO_STANDARD "1.8 V" -to clk100M -entity led_ctrl
+set_location_assignment PIN_AD6 -to clk100M
+
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[0] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[1] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[2] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[3] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[4] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[5] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[6] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[7] -entity led_ctrl
+set_instance_assignment -name IO_STANDARD "1.8 V" -to LED[8] -entity led_ctrl
+set_location_assignment PIN_V6  -to LED[0]
+set_location_assignment PIN_V7  -to LED[1]
+set_location_assignment PIN_U7  -to LED[2]
+set_location_assignment PIN_U8  -to LED[3]
+set_location_assignment PIN_V8  -to LED[4]
+set_location_assignment PIN_W8  -to LED[5]
+set_location_assignment PIN_U9  -to LED[6]
+set_location_assignment PIN_U10 -to LED[7]
+set_location_assignment PIN_V11 -to LED[8]
+set_global_assignment -name LAST_QUARTUS_VERSION "23.3.0 Pro Edition"
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_clk_br.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_rst_br.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_jtag_master.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_jtag2.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_ram.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_issp.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_rst_release.ip

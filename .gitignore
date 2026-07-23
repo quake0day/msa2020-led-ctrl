@@ -1,0 +1,39 @@
+# Quartus 编译产物与缓存
+db/
+qdb/
+dni/
+tmp-clearbox/
+synth_dumps/
+*.qws
+*.rpt
+*.summary
+*.smsg
+*.done
+*.qmsg*
+*.jdi
+*.pin
+*.sld
+quartus.log*
+quartus.rec*
+compile_full.log
+
+# Platform Designer 生成的 HDL (由 make_qsys.tcl + qsys-generate 重建)
+/jtag_sys/
+/ip/jtag_sys/*/
+
+# 大体积烧录文件 (.jic 256MB 超 GitHub 限制; 用 quartus_pfg 从 .sof 重建)
+*.jic
+*_jic.map
+
+# 仿真产物
+*.vvp
+*.vcd
+
+# 杂项
+*.bak
+*.orig
+serv_req_info.txt
+__pycache__/
+*.pyc
+*.sldtmp
+*.legacy
