@@ -46,7 +46,9 @@ class SysCon:
     def __init__(self):
         self.proc = None
         self.lines = queue.Queue()
-        self.issp = None
+        self.issp = None       # LED 控制通道 (instance_id=LED)
+        self.mem = None        # 内存命令通道 (instance_id=MEM)
+        self.mem_seq = 0
         self.lock = threading.Lock()
 
     @staticmethod
@@ -118,18 +120,55 @@ class SysCon:
                                "3) jtag_hw_microsoft_catapult.dll 已复制到 "
                                "quartus\\bin64 "
                                "4) 已用 Programmer 烧录 led_ctrl.sof")
-        self.issp = "[lindex [get_service_paths issp] 0]"
+        # 两个 ISSP 实例: 按 instance_id 后缀区分 LED / MEM
+        n = int(self.tcl("llength [get_service_paths issp]"))
+        for k in range(n):
+            ref = "[lindex [get_service_paths issp] %d]" % k
+            ptxt = self.tcl("lindex [get_service_paths issp] %d" % k)
+            if "_LED" in ptxt:
+                self.issp = ref
+            elif "_MEM" in ptxt:
+                self.mem = ref
+        if not self.issp:
+            raise RuntimeError("未找到 LED 通道 ISSP 实例")
         self.tcl("open_service issp " + self.issp)
         probe = self.read_probe()
         if (probe >> 24) & 0xFF != SIGNATURE:
             raise RuntimeError("探针签名 = 0x%02X, 不是 0x5A, "
                                "板内可能不是 led_ctrl 工程" % ((probe >> 24) & 0xFF))
+        if self.mem:
+            self.tcl("open_service issp " + self.mem)
+            mp = int(self.tcl("issp_read_probe_data " + self.mem).strip(), 0)
+            if (mp >> 56) & 0xFF != 0xA5:
+                self.mem = None      # 旧固件没有内存通道
 
     def write_source(self, val):
         self.tcl("issp_write_source_data %s 0x%X" % (self.issp, val))
 
     def read_probe(self):
         return int(self.tcl("issp_read_probe_data " + self.issp).strip(), 0)
+
+    # ---------------- 内存读写 (经 issp_mem_bridge FSM) ----------------
+    def mem_cmd(self, we, addr, wdata=0):
+        """执行一次 32bit 内存读/写, addr 为字节地址(自动对齐到字)"""
+        if not self.mem:
+            raise RuntimeError("固件无内存通道 (需烧录含 issp_mem_bridge 的版本)")
+        self.mem_seq = self.mem_seq % 255 + 1          # 1..255 循环, 避开 0
+        word = ((self.mem_seq << 64) | (int(we) << 62)
+                | ((addr >> 2 & 0x3FFFFFFF) << 32) | (wdata & 0xFFFFFFFF))
+        self.tcl("issp_write_source_data %s 0x%X" % (self.mem, word))
+        for _ in range(40):                            # 等 FSM 完成 (通常首轮即毕)
+            p = int(self.tcl("issp_read_probe_data " + self.mem).strip(), 0)
+            if (p >> 32) & 0xFF == self.mem_seq:
+                return p & 0xFFFFFFFF
+            time.sleep(0.05)
+        raise TimeoutError("内存命令超时 (seq=%d)" % self.mem_seq)
+
+    def mem_read(self, addr):
+        return self.mem_cmd(0, addr)
+
+    def mem_write(self, addr, val):
+        self.mem_cmd(1, addr, val)
 
     def close(self):
         try:
@@ -214,6 +253,23 @@ class App:
         self.lb_mode = ttk.Label(g4, text="")
         self.lb_mode.pack(side="right", padx=6)
 
+        g5 = ttk.LabelFrame(self.root,
+                            text="内存读写 (当前: 片内RAM 64KB; EMIF 就绪后同界面读写 DDR4)")
+        g5.pack(fill="x", **pad)
+        ttk.Label(g5, text="地址(hex)").grid(row=0, column=0, padx=4, pady=4)
+        self.en_addr = ttk.Entry(g5, width=12)
+        self.en_addr.insert(0, "0")
+        self.en_addr.grid(row=0, column=1, padx=2)
+        ttk.Label(g5, text="数据(hex)").grid(row=0, column=2, padx=4)
+        self.en_data = ttk.Entry(g5, width=12)
+        self.en_data.grid(row=0, column=3, padx=2)
+        ttk.Button(g5, text="读取", width=6, command=self.mem_read_clicked
+                   ).grid(row=0, column=4, padx=4)
+        ttk.Button(g5, text="写入", width=6, command=self.mem_write_clicked
+                   ).grid(row=0, column=5, padx=4)
+        ttk.Button(g5, text="自检(16字)", command=self.mem_selftest
+                   ).grid(row=0, column=6, padx=4)
+
         self.txt = tk.Text(self.root, height=6, width=52, state="disabled",
                            font=("Consolas", 9))
         self.txt.pack(fill="x", **pad)
@@ -266,7 +322,8 @@ class App:
         def run():
             try:
                 fn()
-                self.log(desc)
+                if desc:
+                    self.log(desc)
             except Exception as e:
                 self.log("失败: %s" % e)
         threading.Thread(target=run, daemon=True).start()
@@ -285,6 +342,49 @@ class App:
 
     def apply_manual(self):
         self.set_manual(sum(1 << i for i, v in enumerate(self.cbs) if v.get()))
+
+    # ---------------- 内存页操作 ----------------
+    def _hex(self, entry, default=None):
+        s = entry.get().strip().replace("0x", "").replace("0X", "")
+        if not s:
+            if default is None:
+                raise ValueError("请输入十六进制数")
+            return default
+        return int(s, 16)
+
+    def mem_read_clicked(self):
+        try:
+            addr = self._hex(self.en_addr)
+        except ValueError as e:
+            self.log("地址无效: %s" % e); return
+        def fn():
+            v = self.sc.mem_read(addr)
+            self.root.after(0, lambda: (self.en_data.delete(0, "end"),
+                                        self.en_data.insert(0, "%08X" % v)))
+            return v
+        self._do(lambda: self.log("读 [0x%08X] = 0x%08X" % (addr, fn())), "")
+
+    def mem_write_clicked(self):
+        try:
+            addr, val = self._hex(self.en_addr), self._hex(self.en_data)
+        except ValueError as e:
+            self.log("输入无效: %s" % e); return
+        self._do(lambda: self.sc.mem_write(addr, val),
+                 "写 [0x%08X] = 0x%08X" % (addr, val))
+
+    def mem_selftest(self):
+        def fn():
+            base, n, bad = 0x100, 16, 0
+            for i in range(n):
+                self.sc.mem_write(base + i * 4, (0xA5000000 + i * 0x11111) & 0xFFFFFFFF)
+            for i in range(n):
+                want = (0xA5000000 + i * 0x11111) & 0xFFFFFFFF
+                got = self.sc.mem_read(base + i * 4)
+                if got != want:
+                    bad += 1
+                    self.log("自检不符 [0x%X]: 读 %08X 期望 %08X" % (base + i * 4, got, want))
+            self.log("自检完成: %d/%d 字通过" % (n - bad, n))
+        self._do(fn, "自检启动 (写16字→读回比对)")
 
     # ---------------- 状态轮询 ----------------
     def poll(self):

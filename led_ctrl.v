@@ -17,6 +17,11 @@ wire [3:0]  av_byteenable;
 wire ninit_done;
 wire [15:0] issp_source;
 wire [31:0] issp_probe;
+wire [95:0] mem_source;
+wire [63:0] mem_probe;
+wire [31:0] mb_address, mb_writedata, mb_readdata;
+wire        mb_read, mb_write, mb_waitrequest, mb_readdatavalid;
+wire [3:0]  mb_byteenable;
 
 jtag_sys u_jtag (
     .clk_clk               (clk100M),
@@ -24,6 +29,18 @@ jtag_sys u_jtag (
     .ninit_done_ninit_done (ninit_done),
     .issp_sources_source   (issp_source),
     .issp_probes_probe     (issp_probe),
+    .mem_sources_source    (mem_source),
+    .mem_probes_probe      (mem_probe),
+    .mem_address           (mb_address[30:0]),
+    .mem_read              (mb_read),
+    .mem_write             (mb_write),
+    .mem_writedata         (mb_writedata),
+    .mem_readdata          (mb_readdata),
+    .mem_waitrequest       (mb_waitrequest),
+    .mem_readdatavalid     (mb_readdatavalid),
+    .mem_byteenable        (mb_byteenable),
+    .mem_burstcount        (1'b1),
+    .mem_debugaccess       (1'b0),
     .master_address        (av_address),
     .master_read           (av_read),
     .master_write          (av_write),
@@ -47,6 +64,22 @@ led_ctrl_core u_core (
     .issp_source      (issp_source),
     .issp_probe       (issp_probe),
     .LED              (LED)
+);
+
+// ISSP -> Avalon 内存命令桥 (现指向片内 RAM, DDR4 就绪后指向 EMIF)
+issp_mem_bridge u_membr (
+    .clk              (clk100M),
+    .src              (mem_source),
+    .prb              (mem_probe),
+    .heartbeat        (issp_probe[19:16]),
+    .am_address       (mb_address),
+    .am_read          (mb_read),
+    .am_write         (mb_write),
+    .am_writedata     (mb_writedata),
+    .am_byteenable    (mb_byteenable),
+    .am_readdata      (mb_readdata),
+    .am_readdatavalid (mb_readdatavalid),
+    .am_waitrequest   (mb_waitrequest)
 );
 
 endmodule

@@ -28,6 +28,7 @@ set_global_assignment -name USE_CVP_CONFDONE SDM_IO13
 # ---- 工程文件 ----
 set_global_assignment -name VERILOG_FILE led_ctrl.v
 set_global_assignment -name VERILOG_FILE led_ctrl_core.v
+set_global_assignment -name VERILOG_FILE issp_mem_bridge.v
 set_global_assignment -name QSYS_FILE jtag_sys.qsys
 set_global_assignment -name SDC_FILE led_ctrl.sdc
 
@@ -65,7 +66,8 @@ set_global_assignment -name LAST_QUARTUS_VERSION "23.3.0 Pro Edition"
 set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_clk_br.ip
 set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_rst_br.ip
 set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_jtag_master.ip
-set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_jtag2.ip
-set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_ram.ip
 set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_issp.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_issp2.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_mm_bridge.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_ram.ip
 set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_rst_release.ip

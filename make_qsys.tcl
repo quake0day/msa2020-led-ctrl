@@ -1,9 +1,11 @@
 # 用 qsys-script 生成 jtag_sys.qsys:
-#   jtag_master -- JTAG-Avalon 桥, Avalon 主接口导出给 led_ctrl_core
-#   jtag2 + ram -- 对照实验: 第二个 JTAG 桥直连片内 RAM (纯官方通路,
-#                  用于判断挂死问题是否与自写 RTL 有关)
-#   issp        -- In-System Sources & Probes 备用控制通道 (单次移位,
-#                  不依赖流式传输)
+#   jtag_master -- JTAG-Avalon 桥 (备用: 本板 Catapult 驱动不支持其流式传输,
+#                  换标准 USB-Blaster II 电缆时可用)
+#   issp        -- LED 控制通道 (instance_id=LED, source16/probe32)
+#   issp2       -- 内存读写通道 (instance_id=MEM, source96/probe64)
+#   mm_bridge   -- 32bit Avalon 桥, s0 导出给 issp_mem_bridge FSM 驱动;
+#                  m0 现接片内 RAM (64KB), DDR4 到位后改接 EMIF ctrl_amm
+#                  (位宽适配由 Platform Designer 互连自动完成)
 #   rst_release -- S10 配置完成信号 ninit_done (Critical Warning 20615)
 package require qsys
 
@@ -12,44 +14,53 @@ set_project_property DEVICE {1SG280LN2F43E2VG}
 set_project_property DEVICE_FAMILY {Stratix 10}
 set_project_property HIDE_FROM_IP_CATALOG {true}
 
-# ---- 时钟/复位桥: 多实例共享导出的 clk 与复位 ----
+# ---- 时钟/复位桥 ----
 add_instance clk_br altera_clock_bridge
 set_instance_parameter_value clk_br EXPLICIT_CLOCK_RATE {100000000.0}
 add_instance rst_br altera_reset_bridge
 set_instance_parameter_value rst_br SYNCHRONOUS_EDGES {deassert}
 
-# ---- 主通路: JTAG-Avalon 桥 (导出) ----
+# ---- JTAG-Avalon 桥 (备用) ----
 add_instance jtag_master altera_jtag_avalon_master
 
-# ---- 对照通路: 第二个 JTAG 桥 -> 片内 RAM ----
-add_instance jtag2 altera_jtag_avalon_master
-add_instance ram altera_avalon_onchip_memory2
-set_instance_parameter_value ram memorySize {1024.0}
-set_instance_parameter_value ram dataWidth {32}
-
-# ---- ISSP 备用通道 ----
+# ---- ISSP: LED 控制 ----
 add_instance issp altera_in_system_sources_probes
 set_instance_parameter_value issp source_width {16}
 set_instance_parameter_value issp probe_width {32}
 set_instance_parameter_value issp instance_id {LED}
+
+# ---- ISSP: 内存命令通道 ----
+add_instance issp2 altera_in_system_sources_probes
+set_instance_parameter_value issp2 source_width {96}
+set_instance_parameter_value issp2 probe_width {64}
+set_instance_parameter_value issp2 instance_id {MEM}
+
+# ---- Avalon 桥 + 片内 RAM (64KB 测试内存) ----
+add_instance mm_bridge altera_avalon_mm_bridge
+set_instance_parameter_value mm_bridge DATA_WIDTH {32}
+set_instance_parameter_value mm_bridge ADDRESS_WIDTH {31}
+set_instance_parameter_value mm_bridge USE_AUTO_ADDRESS_WIDTH {0}
+add_instance ram altera_avalon_onchip_memory2
+set_instance_parameter_value ram memorySize {65536.0}
+set_instance_parameter_value ram dataWidth {32}
 
 # ---- Reset Release ----
 add_instance rst_release altera_s10_user_rst_clkgate
 
 # ---- 时钟连接 ----
 add_connection clk_br.out_clk jtag_master.clk
-add_connection clk_br.out_clk jtag2.clk
+add_connection clk_br.out_clk mm_bridge.clk
 add_connection clk_br.out_clk ram.clk1
 add_connection clk_br.out_clk rst_br.clk
 
 # ---- 复位连接 ----
 add_connection rst_br.out_reset jtag_master.clk_reset
-add_connection rst_br.out_reset jtag2.clk_reset
+add_connection rst_br.out_reset mm_bridge.reset
 add_connection rst_br.out_reset ram.reset1
 
-# ---- 对照通路总线连接 ----
-add_connection jtag2.master ram.s1
-set_connection_parameter_value jtag2.master/ram.s1 baseAddress {0x0}
+# ---- 总线连接: 桥 -> RAM ----
+add_connection mm_bridge.m0 ram.s1
+set_connection_parameter_value mm_bridge.m0/ram.s1 baseAddress {0x0}
 
 # ---- 导出 ----
 add_interface clk clock sink
@@ -69,8 +80,15 @@ set_interface_property ninit_done EXPORT_OF rst_release.ninit_done
 
 add_interface issp_sources conduit end
 set_interface_property issp_sources EXPORT_OF issp.sources
-
 add_interface issp_probes conduit end
 set_interface_property issp_probes EXPORT_OF issp.probes
+
+add_interface mem_sources conduit end
+set_interface_property mem_sources EXPORT_OF issp2.sources
+add_interface mem_probes conduit end
+set_interface_property mem_probes EXPORT_OF issp2.probes
+
+add_interface mem avalon slave
+set_interface_property mem EXPORT_OF mm_bridge.s0
 
 save_system {jtag_sys.qsys}

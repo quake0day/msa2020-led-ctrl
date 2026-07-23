@@ -80,6 +80,33 @@ ISSP 值覆盖。
 - `tb_led_ctrl_core.v` — 核心逻辑仿真测试台
 - `led_ctrl.qsf / .sdc / .qpf` — 工程与约束（VID 供电参数照搬 blink，勿改）
 
+## 内存读写通道（DDR4 的前置框架，已上板验证）
+
+第二个 ISSP 实例（instance_id=MEM，source 96bit / probe 64bit）+
+`issp_mem_bridge.v` 命令 FSM 构成通用内存访问通道：
+
+```
+GUI内存页 ─ISSP(MEM)─► issp_mem_bridge FSM ─Avalon 32bit─► mm_bridge ─► 片内RAM 64KB
+                                                            (DDR4 就绪后此处改接 EMIF)
+```
+
+- source: `[31:0]` 写数据 | `[61:32]` 字地址 | `[62]` 1=写 0=读 |
+  `[71:64]` 命令序号（变化即触发，回读探针中序号一致=完成）
+- probe: `[31:0]` 读数据 | `[39:32]` 完成序号 | `[43:40]` 心跳 |
+  `[63:56]` 签名 0xA5
+- 实测约 150+ 次读写/秒（JTAG 调试速度，peek/poke 足够；大流量走 PCIe）
+
+### 板卡 DDR4 硬约束（从 PINDEF 布线得出，选内存条必看）
+
+每通道仅布线 **9 对 DQS + 9 根 DBI_n、1 根 cs_n**（DQ 72 根含 ECC 齐全）：
+
+- **只支持 x8 颗粒、单 rank 的 DIMM（标签 "1Rx8"）**
+- x4 颗粒条（服务器常见 2Rx4/1Rx4 RDIMM）缺 9 对 DQS 布线，物理无法工作
+- 双 rank 条缺第二片选，不可用
+- UDIMM/RDIMM、ECC/非 ECC 均可；速率 ≥2133（板卡上限 2400MT/s）
+- 槽位映射：丝印 DIMM0/1/2/3 ↔ 信号 ddr4_mem[2]/[3]/[0]/[1]，
+  各通道 132 条引脚约束（含 RZQ、150MHz 参考时钟）见 PINDEF ASSIGNMENTS
+
 ## 二次开发
 
 以后想让电脑读板内其他数据（EMIF 校准状态、错误计数器等）：在
