@@ -142,6 +142,24 @@ class SysCon:
             if (mp >> 56) & 0xFF != 0xA5:
                 self.mem = None      # 旧固件没有内存通道
 
+    def ddr_cal_status(self):
+        """返回 (ok[4], fail[4], pwr[3]) 各通道校准与电源状态"""
+        p = int(self.tcl("issp_read_probe_data " + self.mem).strip(), 0)
+        ok = [(p >> (48 + i)) & 1 for i in range(4)]
+        fail = [(p >> (52 + i)) & 1 for i in range(4)]
+        pwr = [(p >> (44 + i)) & 1 for i in range(3)]   # 12V, SWITCH, DDR_LDO
+        return ok, fail, pwr
+
+    def ddr_usrclk_alive(self):
+        """返回各通道 usr_clk 活动计数 [4]; 读两次若增长=该EMIF PLL已锁定"""
+        p = int(self.tcl("issp_read_probe_data " + self.mem).strip(), 0)
+        return [(p >> (80 + i * 4)) & 0xF for i in range(4)]
+
+    def ddr_refclk_alive(self):
+        """返回各通道 ref_clk 输入活动计数 [4]; 增长=参考时钟脚有信号"""
+        p = int(self.tcl("issp_read_probe_data " + self.mem).strip(), 0)
+        return [(p >> (64 + i * 4)) & 0xF for i in range(4)]
+
     def write_source(self, val):
         self.tcl("issp_write_source_data %s 0x%X" % (self.issp, val))
 
@@ -294,6 +312,15 @@ class App:
             self.connected = True
             self.lb_conn.config(text="● 已连接 (签名 0x5A)", foreground="green")
             self.log("已连接 MSA-2020 led_ctrl (ISSP 通道)")
+            if self.sc.mem:
+                try:
+                    ok, fail, pwr = self.sc.ddr_cal_status()
+                    self.log("电源: 12V=%d SWITCH=%d DDR_LDO=%d" % tuple(pwr))
+                    for i in range(4):
+                        st = "成功 ✓" if ok[i] else ("失败 ✗" if fail[i] else "—")
+                        self.log("DDR4 DIMM%d 校准: %s" % (i, st))
+                except Exception:
+                    pass
             if not getattr(self, "_poll_started", False):
                 self._poll_started = True
                 self.root.after(500, self.poll)

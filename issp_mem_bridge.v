@@ -12,12 +12,21 @@
 //   [31:0]  读回数据
 //   [39:32] 已完成命令序号 (等于发出的序号 = 执行完毕)
 //   [43:40] 心跳
+//   [46:44] 电源状态 {DDR_LDO_GD, SWITCH_GD, 12V}
+//   [51:48] 各通道校准成功 ok[3:0]  [55:52] 各通道校准失败 fail[3:0]
 //   [63:56] 签名 0xA5
+//   [79:64] 各 ref_clk 输入活动计数 (每通道4位; 增长=参考时钟脚有信号)
+//   [95:80] 各 EMIF usr_clk 活动计数 (每通道4位; 读两次若增长=PLL锁定)
 module issp_mem_bridge (
     input  wire        clk,
     input  wire [95:0] src,
-    output wire [63:0] prb,
+    output wire [95:0] prb,
     input  wire [3:0]  heartbeat,
+    input  wire [3:0]  cal_ok,         // 各 DDR4 通道校准成功
+    input  wire [3:0]  cal_fail,       // 各 DDR4 通道校准失败
+    input  wire [2:0]  pwr,            // {DDR_LDO_GD, SWITCH_GD, 12V}
+    input  wire [15:0] usr_alive,      // 各 EMIF usr_clk 活动计数 (每通道4位)
+    input  wire [15:0] ref_alive,      // 各 ref_clk 输入活动计数 (每通道4位)
     // Avalon-MM master (32-bit)
     output reg  [31:0] am_address,
     output reg         am_read,
@@ -81,6 +90,7 @@ always @(posedge clk) begin
     endcase
 end
 
-assign prb = {8'hA5, 8'd0, 4'd0, heartbeat, seq_done, rdata};
+assign prb = {usr_alive, ref_alive, 8'hA5, cal_fail, cal_ok, 1'b0, pwr,
+              heartbeat, seq_done, rdata};
 
 endmodule

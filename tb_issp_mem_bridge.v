@@ -6,7 +6,7 @@ reg clk = 0;
 always #5 clk = ~clk;
 
 reg  [95:0] src = 96'd0;
-wire [63:0] prb;
+wire [95:0] prb;
 wire [31:0] am_address, am_writedata;
 wire [31:0] am_readdata;
 wire        am_read, am_write;
@@ -14,6 +14,8 @@ wire [3:0]  am_byteenable;
 
 issp_mem_bridge dut (
     .clk(clk), .src(src), .prb(prb), .heartbeat(4'h7),
+    .cal_ok(4'b0100), .cal_fail(4'b0011), .pwr(3'b111),
+    .usr_alive(16'h1234), .ref_alive(16'h5678),
     .am_address(am_address), .am_read(am_read), .am_write(am_write),
     .am_writedata(am_writedata), .am_byteenable(am_byteenable),
     .am_readdata(am_readdata), .am_readdatavalid(am_readdatavalid),
