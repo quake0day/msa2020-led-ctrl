@@ -14,12 +14,12 @@ refer to the applicable agreement for further details, at
 https://fpgasoftware.intel.com/eula.-->
 <ipxact:component xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
   <ipxact:vendor>Intel Corporation</ipxact:vendor>
-  <ipxact:library>jtag_sys_mm_bridge</ipxact:library>
-  <ipxact:name>mm_bridge</ipxact:name>
-  <ipxact:version>20.0.1</ipxact:version>
+  <ipxact:library>jtag_sys_i2c</ipxact:library>
+  <ipxact:name>i2c</ipxact:name>
+  <ipxact:version>19.2.4</ipxact:version>
   <ipxact:busInterfaces>
     <ipxact:busInterface>
-      <ipxact:name>clk</ipxact:name>
+      <ipxact:name>clock</ipxact:name>
       <ipxact:busType vendor="intel" library="intel" name="clock" version="23.3"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
@@ -56,7 +56,7 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:parameters>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>reset</ipxact:name>
+      <ipxact:name>reset_sink</ipxact:name>
       <ipxact:busType vendor="intel" library="intel" name="reset" version="23.3"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
@@ -64,10 +64,10 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>reset</ipxact:name>
+                <ipxact:name>reset_n</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>reset</ipxact:name>
+                <ipxact:name>rst_n</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
           </ipxact:portMaps>
@@ -78,7 +78,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="associatedClock" type="string">
           <ipxact:name>associatedClock</ipxact:name>
           <ipxact:displayName>Associated clock</ipxact:displayName>
-          <ipxact:value>clk</ipxact:value>
+          <ipxact:value>clock</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="synchronousEdges" type="string">
           <ipxact:name>synchronousEdges</ipxact:name>
@@ -88,7 +88,59 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:parameters>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>s0</ipxact:name>
+      <ipxact:name>interrupt_sender</ipxact:name>
+      <ipxact:busType vendor="intel" library="intel" name="interrupt" version="23.3"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="interrupt" version="23.3"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>irq</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>intr</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:slave></ipxact:slave>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="associatedAddressablePoint" type="string">
+          <ipxact:name>associatedAddressablePoint</ipxact:name>
+          <ipxact:displayName>Associated addressable interface</ipxact:displayName>
+          <ipxact:value>jtag_sys_i2c.csr</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedClock" type="string">
+          <ipxact:name>associatedClock</ipxact:name>
+          <ipxact:displayName>Associated clock</ipxact:displayName>
+          <ipxact:value>clock</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedReset" type="string">
+          <ipxact:name>associatedReset</ipxact:name>
+          <ipxact:displayName>Associated reset</ipxact:displayName>
+          <ipxact:value>reset_sink</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="bridgedReceiverOffset" type="longint">
+          <ipxact:name>bridgedReceiverOffset</ipxact:name>
+          <ipxact:displayName>Bridged receiver offset</ipxact:displayName>
+          <ipxact:value>0</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="bridgesToReceiver" type="string">
+          <ipxact:name>bridgesToReceiver</ipxact:name>
+          <ipxact:displayName>Bridges to receiver</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="irqScheme" type="string">
+          <ipxact:name>irqScheme</ipxact:name>
+          <ipxact:displayName>Interrupt scheme</ipxact:displayName>
+          <ipxact:value>NONE</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+    </ipxact:busInterface>
+    <ipxact:busInterface>
+      <ipxact:name>csr</ipxact:name>
       <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.3"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
@@ -96,58 +148,10 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>waitrequest</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>s0_waitrequest</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>readdata</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>s0_readdata</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>readdatavalid</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>s0_readdatavalid</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>burstcount</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>s0_burstcount</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>writedata</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>s0_writedata</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
                 <ipxact:name>address</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>s0_address</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>write</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>s0_write</ipxact:name>
+                <ipxact:name>addr</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
@@ -155,23 +159,31 @@ https://fpgasoftware.intel.com/eula.-->
                 <ipxact:name>read</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>s0_read</ipxact:name>
+                <ipxact:name>read</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>byteenable</ipxact:name>
+                <ipxact:name>write</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>s0_byteenable</ipxact:name>
+                <ipxact:name>write</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>debugaccess</ipxact:name>
+                <ipxact:name>writedata</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>s0_debugaccess</ipxact:name>
+                <ipxact:name>writedata</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>readdata</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>readdata</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
           </ipxact:portMaps>
@@ -192,12 +204,12 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="addressSpan" type="string">
           <ipxact:name>addressSpan</ipxact:name>
           <ipxact:displayName>Address span</ipxact:displayName>
-          <ipxact:value>68719476736</ipxact:value>
+          <ipxact:value>64</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="addressUnits" type="string">
           <ipxact:name>addressUnits</ipxact:name>
           <ipxact:displayName>Address units</ipxact:displayName>
-          <ipxact:value>SYMBOLS</ipxact:value>
+          <ipxact:value>WORDS</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="alwaysBurstMaxBurst" type="bit">
           <ipxact:name>alwaysBurstMaxBurst</ipxact:name>
@@ -207,12 +219,12 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="associatedClock" type="string">
           <ipxact:name>associatedClock</ipxact:name>
           <ipxact:displayName>Associated clock</ipxact:displayName>
-          <ipxact:value>clk</ipxact:value>
+          <ipxact:value>clock</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="associatedReset" type="string">
           <ipxact:name>associatedReset</ipxact:name>
           <ipxact:displayName>Associated reset</ipxact:displayName>
-          <ipxact:value>reset</ipxact:value>
+          <ipxact:value>reset_sink</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="bitsPerSymbol" type="int">
           <ipxact:name>bitsPerSymbol</ipxact:name>
@@ -227,7 +239,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="bridgesToMaster" type="string">
           <ipxact:name>bridgesToMaster</ipxact:name>
           <ipxact:displayName>Bridges to host</ipxact:displayName>
-          <ipxact:value>jtag_sys_mm_bridge.m0</ipxact:value>
+          <ipxact:value></ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="burstOnBurstBoundariesOnly" type="bit">
           <ipxact:name>burstOnBurstBoundariesOnly</ipxact:name>
@@ -287,7 +299,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="maximumPendingReadTransactions" type="int">
           <ipxact:name>maximumPendingReadTransactions</ipxact:name>
           <ipxact:displayName>Maximum pending read transactions</ipxact:displayName>
-          <ipxact:value>4</ipxact:value>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="maximumPendingWriteTransactions" type="int">
           <ipxact:name>maximumPendingWriteTransactions</ipxact:name>
@@ -322,7 +334,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="readLatency" type="int">
           <ipxact:name>readLatency</ipxact:name>
           <ipxact:displayName>Read latency</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>2</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="readWaitStates" type="int">
           <ipxact:name>readWaitStates</ipxact:name>
@@ -459,266 +471,63 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:vendorExtensions>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>m0</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.3"></ipxact:busType>
+      <ipxact:name>i2c_serial</ipxact:name>
+      <ipxact:busType vendor="intel" library="intel" name="conduit" version="23.3"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="avalon" version="23.3"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="23.3"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>waitrequest</ipxact:name>
+                <ipxact:name>sda_in</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>m0_waitrequest</ipxact:name>
+                <ipxact:name>sda_in</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>readdata</ipxact:name>
+                <ipxact:name>scl_in</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>m0_readdata</ipxact:name>
+                <ipxact:name>scl_in</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>readdatavalid</ipxact:name>
+                <ipxact:name>sda_oe</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>m0_readdatavalid</ipxact:name>
+                <ipxact:name>sda_oe</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
               <ipxact:logicalPort>
-                <ipxact:name>burstcount</ipxact:name>
+                <ipxact:name>scl_oe</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>m0_burstcount</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>writedata</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>m0_writedata</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>address</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>m0_address</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>write</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>m0_write</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>read</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>m0_read</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>byteenable</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>m0_byteenable</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>debugaccess</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>m0_debugaccess</ipxact:name>
+                <ipxact:name>scl_oe</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
           </ipxact:portMaps>
         </ipxact:abstractionType>
       </ipxact:abstractionTypes>
-      <ipxact:master></ipxact:master>
+      <ipxact:slave></ipxact:slave>
       <ipxact:parameters>
-        <ipxact:parameter parameterId="adaptsTo" type="string">
-          <ipxact:name>adaptsTo</ipxact:name>
-          <ipxact:displayName>Adapts to</ipxact:displayName>
-          <ipxact:value></ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="addressGroup" type="int">
-          <ipxact:name>addressGroup</ipxact:name>
-          <ipxact:displayName>Address group</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="addressUnits" type="string">
-          <ipxact:name>addressUnits</ipxact:name>
-          <ipxact:displayName>Address units</ipxact:displayName>
-          <ipxact:value>SYMBOLS</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="alwaysBurstMaxBurst" type="bit">
-          <ipxact:name>alwaysBurstMaxBurst</ipxact:name>
-          <ipxact:displayName>Always burst maximum burst</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
         <ipxact:parameter parameterId="associatedClock" type="string">
           <ipxact:name>associatedClock</ipxact:name>
-          <ipxact:displayName>Associated clock</ipxact:displayName>
-          <ipxact:value>clk</ipxact:value>
+          <ipxact:displayName>associatedClock</ipxact:displayName>
+          <ipxact:value></ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="associatedReset" type="string">
           <ipxact:name>associatedReset</ipxact:name>
-          <ipxact:displayName>Associated reset</ipxact:displayName>
-          <ipxact:value>reset</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="bitsPerSymbol" type="int">
-          <ipxact:name>bitsPerSymbol</ipxact:name>
-          <ipxact:displayName>Bits per symbol</ipxact:displayName>
-          <ipxact:value>8</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="burstOnBurstBoundariesOnly" type="bit">
-          <ipxact:name>burstOnBurstBoundariesOnly</ipxact:name>
-          <ipxact:displayName>Burst on burst boundaries only</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="burstcountUnits" type="string">
-          <ipxact:name>burstcountUnits</ipxact:name>
-          <ipxact:displayName>Burstcount units</ipxact:displayName>
-          <ipxact:value>WORDS</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="constantBurstBehavior" type="bit">
-          <ipxact:name>constantBurstBehavior</ipxact:name>
-          <ipxact:displayName>Constant burst behavior</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="dBSBigEndian" type="bit">
-          <ipxact:name>dBSBigEndian</ipxact:name>
-          <ipxact:displayName>dBS big endian</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="doStreamReads" type="bit">
-          <ipxact:name>doStreamReads</ipxact:name>
-          <ipxact:displayName>Use flow control for read transfers</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="doStreamWrites" type="bit">
-          <ipxact:name>doStreamWrites</ipxact:name>
-          <ipxact:displayName>Use flow control for write transfers</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="holdTime" type="int">
-          <ipxact:name>holdTime</ipxact:name>
-          <ipxact:displayName>Hold</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="interleaveBursts" type="bit">
-          <ipxact:name>interleaveBursts</ipxact:name>
-          <ipxact:displayName>Interleave bursts</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="isAsynchronous" type="bit">
-          <ipxact:name>isAsynchronous</ipxact:name>
-          <ipxact:displayName>Is asynchronous</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="isBigEndian" type="bit">
-          <ipxact:name>isBigEndian</ipxact:name>
-          <ipxact:displayName>Is big endian</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="isReadable" type="bit">
-          <ipxact:name>isReadable</ipxact:name>
-          <ipxact:displayName>Is readable</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="isWriteable" type="bit">
-          <ipxact:name>isWriteable</ipxact:name>
-          <ipxact:displayName>Is writeable</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="linewrapBursts" type="bit">
-          <ipxact:name>linewrapBursts</ipxact:name>
-          <ipxact:displayName>Linewrap bursts</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="maxAddressWidth" type="int">
-          <ipxact:name>maxAddressWidth</ipxact:name>
-          <ipxact:displayName>Maximum address width</ipxact:displayName>
-          <ipxact:value>32</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="maximumPendingReadTransactions" type="int">
-          <ipxact:name>maximumPendingReadTransactions</ipxact:name>
-          <ipxact:displayName>Maximum pending read transactions</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="maximumPendingWriteTransactions" type="int">
-          <ipxact:name>maximumPendingWriteTransactions</ipxact:name>
-          <ipxact:displayName>Maximum pending write transactions</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="minimumReadLatency" type="int">
-          <ipxact:name>minimumReadLatency</ipxact:name>
-          <ipxact:displayName>minimumReadLatency</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="minimumResponseLatency" type="int">
-          <ipxact:name>minimumResponseLatency</ipxact:name>
-          <ipxact:displayName>Minimum response latency</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:displayName>associatedReset</ipxact:displayName>
+          <ipxact:value></ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="prSafe" type="bit">
           <ipxact:name>prSafe</ipxact:name>
           <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
           <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="readLatency" type="int">
-          <ipxact:name>readLatency</ipxact:name>
-          <ipxact:displayName>Read latency</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="readWaitTime" type="int">
-          <ipxact:name>readWaitTime</ipxact:name>
-          <ipxact:displayName>Read wait</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="registerIncomingSignals" type="bit">
-          <ipxact:name>registerIncomingSignals</ipxact:name>
-          <ipxact:displayName>Register incoming signals</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="registerOutgoingSignals" type="bit">
-          <ipxact:name>registerOutgoingSignals</ipxact:name>
-          <ipxact:displayName>Register outgoing signals</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="setupTime" type="int">
-          <ipxact:name>setupTime</ipxact:name>
-          <ipxact:displayName>Setup</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="timingUnits" type="string">
-          <ipxact:name>timingUnits</ipxact:name>
-          <ipxact:displayName>Timing units</ipxact:displayName>
-          <ipxact:value>Cycles</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="waitrequestAllowance" type="int">
-          <ipxact:name>waitrequestAllowance</ipxact:name>
-          <ipxact:displayName>Waitrequest allowance</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="writeWaitTime" type="int">
-          <ipxact:name>writeWaitTime</ipxact:name>
-          <ipxact:displayName>Write wait</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
     </ipxact:busInterface>
@@ -734,7 +543,7 @@ https://fpgasoftware.intel.com/eula.-->
     <ipxact:instantiations>
       <ipxact:componentInstantiation>
         <ipxact:name>QUARTUS_SYNTH</ipxact:name>
-        <ipxact:moduleName>altera_avalon_mm_bridge</ipxact:moduleName>
+        <ipxact:moduleName>altera_avalon_i2c</ipxact:moduleName>
         <ipxact:fileSetRef>
           <ipxact:localName>QUARTUS_SYNTH</ipxact:localName>
         </ipxact:fileSetRef>
@@ -754,7 +563,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>reset</ipxact:name>
+        <ipxact:name>rst_n</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -766,7 +575,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>s0_waitrequest</ipxact:name>
+        <ipxact:name>intr</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>out</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -778,109 +587,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>s0_readdata</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:vectors>
-            <ipxact:vector>
-              <ipxact:left>0</ipxact:left>
-              <ipxact:right>31</ipxact:right>
-            </ipxact:vector>
-          </ipxact:vectors>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_readdatavalid</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_burstcount</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_writedata</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:vectors>
-            <ipxact:vector>
-              <ipxact:left>0</ipxact:left>
-              <ipxact:right>31</ipxact:right>
-            </ipxact:vector>
-          </ipxact:vectors>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_address</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:vectors>
-            <ipxact:vector>
-              <ipxact:left>0</ipxact:left>
-              <ipxact:right>35</ipxact:right>
-            </ipxact:vector>
-          </ipxact:vectors>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_write</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_read</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>s0_byteenable</ipxact:name>
+        <ipxact:name>addr</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
           <ipxact:vectors>
@@ -898,7 +605,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>s0_debugaccess</ipxact:name>
+        <ipxact:name>read</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -910,7 +617,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>m0_waitrequest</ipxact:name>
+        <ipxact:name>write</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -922,7 +629,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>m0_readdata</ipxact:name>
+        <ipxact:name>writedata</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
           <ipxact:vectors>
@@ -940,31 +647,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>m0_readdatavalid</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>m0_burstcount</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>m0_writedata</ipxact:name>
+        <ipxact:name>readdata</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>out</ipxact:direction>
           <ipxact:vectors>
@@ -982,25 +665,31 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>m0_address</ipxact:name>
+        <ipxact:name>sda_in</ipxact:name>
         <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:vectors>
-            <ipxact:vector>
-              <ipxact:left>0</ipxact:left>
-              <ipxact:right>35</ipxact:right>
-            </ipxact:vector>
-          </ipxact:vectors>
+          <ipxact:direction>in</ipxact:direction>
           <ipxact:wireTypeDefs>
             <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
               <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
             </ipxact:wireTypeDef>
           </ipxact:wireTypeDefs>
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>m0_write</ipxact:name>
+        <ipxact:name>scl_in</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>sda_oe</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>out</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -1012,37 +701,7 @@ https://fpgasoftware.intel.com/eula.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>m0_read</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>m0_byteenable</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:vectors>
-            <ipxact:vector>
-              <ipxact:left>0</ipxact:left>
-              <ipxact:right>3</ipxact:right>
-            </ipxact:vector>
-          </ipxact:vectors>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>m0_debugaccess</ipxact:name>
+        <ipxact:name>scl_oe</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>out</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -1058,89 +717,45 @@ https://fpgasoftware.intel.com/eula.-->
   <ipxact:vendorExtensions>
     <altera:entity_info>
       <ipxact:vendor>Intel Corporation</ipxact:vendor>
-      <ipxact:library>jtag_sys_mm_bridge</ipxact:library>
-      <ipxact:name>altera_avalon_mm_bridge</ipxact:name>
-      <ipxact:version>20.0.1</ipxact:version>
+      <ipxact:library>jtag_sys_i2c</ipxact:library>
+      <ipxact:name>altera_avalon_i2c</ipxact:name>
+      <ipxact:version>19.2.4</ipxact:version>
     </altera:entity_info>
     <altera:altera_module_parameters>
       <ipxact:parameters>
-        <ipxact:parameter parameterId="DATA_WIDTH" type="int">
-          <ipxact:name>DATA_WIDTH</ipxact:name>
-          <ipxact:displayName>Data width</ipxact:displayName>
-          <ipxact:value>32</ipxact:value>
+        <ipxact:parameter parameterId="USE_AV_ST" type="int">
+          <ipxact:name>USE_AV_ST</ipxact:name>
+          <ipxact:displayName>Interface for transfer command Fifo and receive data Fifo accesses</ipxact:displayName>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="SYMBOL_WIDTH" type="int">
-          <ipxact:name>SYMBOL_WIDTH</ipxact:name>
-          <ipxact:displayName>Symbol width</ipxact:displayName>
+        <ipxact:parameter parameterId="FIFO_DEPTH" type="int">
+          <ipxact:name>FIFO_DEPTH</ipxact:name>
+          <ipxact:displayName>Depth of Fifo</ipxact:displayName>
           <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="ADDRESS_WIDTH" type="int">
-          <ipxact:name>ADDRESS_WIDTH</ipxact:name>
-          <ipxact:displayName>Address width</ipxact:displayName>
-          <ipxact:value>36</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="SYSINFO_ADDR_WIDTH" type="int">
-          <ipxact:name>SYSINFO_ADDR_WIDTH</ipxact:name>
-          <ipxact:displayName>SYSINFO_ADDR_WIDTH</ipxact:displayName>
-          <ipxact:value>34</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="USE_AUTO_ADDRESS_WIDTH" type="int">
-          <ipxact:name>USE_AUTO_ADDRESS_WIDTH</ipxact:name>
-          <ipxact:displayName>Use automatically-determined address width</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="ADDRESS_UNITS" type="string">
-          <ipxact:name>ADDRESS_UNITS</ipxact:name>
-          <ipxact:displayName>Address units</ipxact:displayName>
-          <ipxact:value>SYMBOLS</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="MAX_BURST_SIZE" type="int">
-          <ipxact:name>MAX_BURST_SIZE</ipxact:name>
-          <ipxact:displayName>Maximum burst size (words)</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="MAX_PENDING_RESPONSES" type="int">
-          <ipxact:name>MAX_PENDING_RESPONSES</ipxact:name>
-          <ipxact:displayName>Maximum pending read transactions</ipxact:displayName>
-          <ipxact:value>4</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="MAX_PENDING_WRITES" type="int">
-          <ipxact:name>MAX_PENDING_WRITES</ipxact:name>
-          <ipxact:displayName>Maximum pending write transactions</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="LINEWRAPBURSTS" type="int">
-          <ipxact:name>LINEWRAPBURSTS</ipxact:name>
-          <ipxact:displayName>Line wrap bursts</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="PIPELINE_COMMAND" type="int">
-          <ipxact:name>PIPELINE_COMMAND</ipxact:name>
-          <ipxact:displayName>Pipeline command signals</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="PIPELINE_RESPONSE" type="int">
-          <ipxact:name>PIPELINE_RESPONSE</ipxact:name>
-          <ipxact:displayName>Pipeline response signals</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="USE_RESPONSE" type="int">
-          <ipxact:name>USE_RESPONSE</ipxact:name>
-          <ipxact:displayName>Use Avalon Transaction Responses</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="SYNC_RESET" type="int">
-          <ipxact:name>SYNC_RESET</ipxact:name>
-          <ipxact:displayName>Use synchronous resets</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="USE_WRITERESPONSE" type="int">
-          <ipxact:name>USE_WRITERESPONSE</ipxact:name>
-          <ipxact:displayName>Use Writeresponsevalid</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+        <ipxact:parameter parameterId="clockRate" type="int">
+          <ipxact:name>clockRate</ipxact:name>
+          <ipxact:displayName>clockRate</ipxact:displayName>
+          <ipxact:value>100000000</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
     </altera:altera_module_parameters>
+    <altera:altera_assignments>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="embeddedsw.CMacro.FIFO_DEPTH" type="string">
+          <ipxact:name>embeddedsw.CMacro.FIFO_DEPTH</ipxact:name>
+          <ipxact:value>8</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="embeddedsw.CMacro.FREQ" type="string">
+          <ipxact:name>embeddedsw.CMacro.FREQ</ipxact:name>
+          <ipxact:value>100000000</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="embeddedsw.CMacro.USE_AV_ST" type="string">
+          <ipxact:name>embeddedsw.CMacro.USE_AV_ST</ipxact:name>
+          <ipxact:value>0</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+    </altera:altera_assignments>
     <altera:altera_system_parameters>
       <ipxact:parameters>
         <ipxact:parameter parameterId="board" type="string">
@@ -1187,7 +802,7 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:value>&lt;boundaryDefinition&gt;
     &lt;interfaces&gt;
         &lt;interface&gt;
-            &lt;name&gt;clk&lt;/name&gt;
+            &lt;name&gt;clock&lt;/name&gt;
             &lt;type&gt;clock&lt;/type&gt;
             &lt;isStart&gt;false&lt;/isStart&gt;
             &lt;ports&gt;
@@ -1221,13 +836,13 @@ https://fpgasoftware.intel.com/eula.-->
             &lt;/parameters&gt;
         &lt;/interface&gt;
         &lt;interface&gt;
-            &lt;name&gt;reset&lt;/name&gt;
+            &lt;name&gt;reset_sink&lt;/name&gt;
             &lt;type&gt;reset&lt;/type&gt;
             &lt;isStart&gt;false&lt;/isStart&gt;
             &lt;ports&gt;
                 &lt;port&gt;
-                    &lt;name&gt;reset&lt;/name&gt;
-                    &lt;role&gt;reset&lt;/role&gt;
+                    &lt;name&gt;rst_n&lt;/name&gt;
+                    &lt;role&gt;reset_n&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
                     &lt;width&gt;1&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
@@ -1242,7 +857,7 @@ https://fpgasoftware.intel.com/eula.-->
                 &lt;parameterValueMap&gt;
                     &lt;entry&gt;
                         &lt;key&gt;associatedClock&lt;/key&gt;
-                        &lt;value&gt;clk&lt;/value&gt;
+                        &lt;value&gt;clock&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;synchronousEdges&lt;/key&gt;
@@ -1252,75 +867,67 @@ https://fpgasoftware.intel.com/eula.-->
             &lt;/parameters&gt;
         &lt;/interface&gt;
         &lt;interface&gt;
-            &lt;name&gt;s0&lt;/name&gt;
+            &lt;name&gt;interrupt_sender&lt;/name&gt;
+            &lt;type&gt;interrupt&lt;/type&gt;
+            &lt;isStart&gt;false&lt;/isStart&gt;
+            &lt;ports&gt;
+                &lt;port&gt;
+                    &lt;name&gt;intr&lt;/name&gt;
+                    &lt;role&gt;irq&lt;/role&gt;
+                    &lt;direction&gt;Output&lt;/direction&gt;
+                    &lt;width&gt;1&lt;/width&gt;
+                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
+                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
+                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
+                &lt;/port&gt;
+            &lt;/ports&gt;
+            &lt;assignments&gt;
+                &lt;assignmentValueMap/&gt;
+            &lt;/assignments&gt;
+            &lt;parameters&gt;
+                &lt;parameterValueMap&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;associatedAddressablePoint&lt;/key&gt;
+                        &lt;value&gt;jtag_sys_i2c.csr&lt;/value&gt;
+                    &lt;/entry&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;associatedClock&lt;/key&gt;
+                        &lt;value&gt;clock&lt;/value&gt;
+                    &lt;/entry&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;associatedReset&lt;/key&gt;
+                        &lt;value&gt;reset_sink&lt;/value&gt;
+                    &lt;/entry&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;bridgedReceiverOffset&lt;/key&gt;
+                        &lt;value&gt;0&lt;/value&gt;
+                    &lt;/entry&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;bridgesToReceiver&lt;/key&gt;
+                    &lt;/entry&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;irqScheme&lt;/key&gt;
+                        &lt;value&gt;NONE&lt;/value&gt;
+                    &lt;/entry&gt;
+                &lt;/parameterValueMap&gt;
+            &lt;/parameters&gt;
+        &lt;/interface&gt;
+        &lt;interface&gt;
+            &lt;name&gt;csr&lt;/name&gt;
             &lt;type&gt;avalon&lt;/type&gt;
             &lt;isStart&gt;false&lt;/isStart&gt;
             &lt;ports&gt;
                 &lt;port&gt;
-                    &lt;name&gt;s0_waitrequest&lt;/name&gt;
-                    &lt;role&gt;waitrequest&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;s0_readdata&lt;/name&gt;
-                    &lt;role&gt;readdata&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;32&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;s0_readdatavalid&lt;/name&gt;
-                    &lt;role&gt;readdatavalid&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;s0_burstcount&lt;/name&gt;
-                    &lt;role&gt;burstcount&lt;/role&gt;
-                    &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;s0_writedata&lt;/name&gt;
-                    &lt;role&gt;writedata&lt;/role&gt;
-                    &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;32&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;s0_address&lt;/name&gt;
+                    &lt;name&gt;addr&lt;/name&gt;
                     &lt;role&gt;address&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;36&lt;/width&gt;
+                    &lt;width&gt;4&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
                 &lt;port&gt;
-                    &lt;name&gt;s0_write&lt;/name&gt;
-                    &lt;role&gt;write&lt;/role&gt;
-                    &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;s0_read&lt;/name&gt;
+                    &lt;name&gt;read&lt;/name&gt;
                     &lt;role&gt;read&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
                     &lt;width&gt;1&lt;/width&gt;
@@ -1329,21 +936,30 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
                 &lt;port&gt;
-                    &lt;name&gt;s0_byteenable&lt;/name&gt;
-                    &lt;role&gt;byteenable&lt;/role&gt;
+                    &lt;name&gt;write&lt;/name&gt;
+                    &lt;role&gt;write&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;4&lt;/width&gt;
+                    &lt;width&gt;1&lt;/width&gt;
+                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
+                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
+                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
+                &lt;/port&gt;
+                &lt;port&gt;
+                    &lt;name&gt;writedata&lt;/name&gt;
+                    &lt;role&gt;writedata&lt;/role&gt;
+                    &lt;direction&gt;Input&lt;/direction&gt;
+                    &lt;width&gt;32&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
                 &lt;port&gt;
-                    &lt;name&gt;s0_debugaccess&lt;/name&gt;
-                    &lt;role&gt;debugaccess&lt;/role&gt;
-                    &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
+                    &lt;name&gt;readdata&lt;/name&gt;
+                    &lt;role&gt;readdata&lt;/role&gt;
+                    &lt;direction&gt;Output&lt;/direction&gt;
+                    &lt;width&gt;32&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
+                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
             &lt;/ports&gt;
@@ -1379,11 +995,11 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;addressSpan&lt;/key&gt;
-                        &lt;value&gt;68719476736&lt;/value&gt;
+                        &lt;value&gt;64&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;addressUnits&lt;/key&gt;
-                        &lt;value&gt;SYMBOLS&lt;/value&gt;
+                        &lt;value&gt;WORDS&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;alwaysBurstMaxBurst&lt;/key&gt;
@@ -1391,11 +1007,11 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;associatedClock&lt;/key&gt;
-                        &lt;value&gt;clk&lt;/value&gt;
+                        &lt;value&gt;clock&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;associatedReset&lt;/key&gt;
-                        &lt;value&gt;reset&lt;/value&gt;
+                        &lt;value&gt;reset_sink&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;bitsPerSymbol&lt;/key&gt;
@@ -1407,7 +1023,6 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;bridgesToMaster&lt;/key&gt;
-                        &lt;value&gt;jtag_sys_mm_bridge.m0&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;burstOnBurstBoundariesOnly&lt;/key&gt;
@@ -1455,7 +1070,7 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;maximumPendingReadTransactions&lt;/key&gt;
-                        &lt;value&gt;4&lt;/value&gt;
+                        &lt;value&gt;0&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;maximumPendingWriteTransactions&lt;/key&gt;
@@ -1483,7 +1098,7 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;readLatency&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
+                        &lt;value&gt;2&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;readWaitStates&lt;/key&gt;
@@ -1570,15 +1185,292 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;/entry&gt;
                 &lt;/parameterValueMap&gt;
             &lt;/parameters&gt;
+            &lt;cmsisInfo&gt;
+                &lt;cmsisSrcFileContents&gt;&amp;lt;?xml version="1.0" encoding="utf-8"?&amp;gt;
+&amp;lt;device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd"&amp;gt;
+  &amp;lt;peripherals&amp;gt;
+    &amp;lt;peripheral&amp;gt;
+      &amp;lt;baseAddress&amp;gt;0x00000000&amp;lt;/baseAddress&amp;gt;
+      &amp;lt;name&amp;gt;altera_avalon_i2c&amp;lt;/name&amp;gt;
+      &amp;lt;description&amp;gt;altera_avalon_i2c&amp;lt;/description&amp;gt;
+      &amp;lt;registers&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;write-only&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x0&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;Transfer command FIFO&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;tfr_cmd&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;tfr_cmd&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;write-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[0:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;When transfer is in address phase, this field is used to specify the direction of I2C transfer.&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;rw_d&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;write-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[7:1]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;When in address phase, these fields act as address bits&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;ad&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;write-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[8:8]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Requests a STOP condition to be generated afer current byte transfer&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;sto&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;write-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[9:9]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Requests a repeated START condition to be generated before current byte transfer&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;sta&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x1&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;Receive data FIFO&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;rx_data&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;rx_data&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[7:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Byte received from I2C transfer&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;rx_data&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x2&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;Control register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;ctrl&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;ctrl&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x3&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;Interrupt status enable register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;iser&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;iser&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[0:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Enable interrupt for TX_READY condition&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;tx_ready_en&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[1:1]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Enable interrupt for RX_READY condition&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;rx_ready_en&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[2:2]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Enable interrupt for NACK_DET condition&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;nack_det_en&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[3:3]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Enable interrupt for ARBLOST_DET condition&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;arblost_det_en&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[4:4]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Enable interrupt for RX_OVER condition&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;rx_over_en&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x4&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;Interrupt status register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;isr&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;isr&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[0:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Indicates transfer command FIFO is ready for data transmission. This bit is asserted when transfer command FIFO level is equal or less than TFR_CMD FIFO threshold.&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;tx_ready&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[1:1]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Indicates receive data FIFO contains data sent by the remote I2C device. This bit is asserted when RX_DATA FIFO level is equal or more than RX_DATA FIFO threshold.&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;rx_ready &amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-writeOnce&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[2:2]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Indicates NACK is received by the core&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;nack_det&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-writeOnce&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[3:3]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Indicates core has lost the bus arbitration&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;arblost_det&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-writeOnce&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[4:4]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Indicates receive data FIFO has overrun condition, new data is lost&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;rx_over&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x5&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;Status register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;status&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;status&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[0:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Status of the core's state machine&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;core_status&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x6&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;TFR_CMD FIFO level register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;tfr_cmd_fifo_lvl&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;tfr_cmd_fifo_lvl&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[${log2_fifo_depth}:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Current level of TFR_CMD FIFO&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;lvl&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x7&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;RX_DATA FIFO level register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;rx_data_fifo_lvl&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;rx_data_fifo_lvl&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-only&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[${log2_fifo_depth}:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Current level of RX_DATA FIFO&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;lvl&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x8&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;SCL low count register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;scl_low&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;scl_low&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[15:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Low period of SCL in terms of number of clock cycles&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;count_period&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0x9&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;SCL high count register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;scl_high&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;scl_high&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[15:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;High period of SCL in term of number of clock cycles&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;count_period&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+        &amp;lt;register&amp;gt;
+          &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+          &amp;lt;addressOffset&amp;gt;0xA&amp;lt;/addressOffset&amp;gt;
+          &amp;lt;description&amp;gt;SDA hold count register&amp;lt;/description&amp;gt;
+          &amp;lt;displayName&amp;gt;sda_hold&amp;lt;/displayName&amp;gt;
+          &amp;lt;name&amp;gt;sda_hold&amp;lt;/name&amp;gt;
+          &amp;lt;resetMask&amp;gt;0xffffffff&amp;lt;/resetMask&amp;gt;
+          &amp;lt;resetValue&amp;gt;0x00000000&amp;lt;/resetValue&amp;gt;
+          &amp;lt;size&amp;gt;32&amp;lt;/size&amp;gt;
+          &amp;lt;fields&amp;gt;
+            &amp;lt;field&amp;gt;
+              &amp;lt;access&amp;gt;read-write&amp;lt;/access&amp;gt;
+              &amp;lt;bitRange&amp;gt;[15:0]&amp;lt;/bitRange&amp;gt;
+              &amp;lt;description&amp;gt;Hold period of SDA in term of number of clock cycles&amp;lt;/description&amp;gt;
+              &amp;lt;name&amp;gt;count_period&amp;lt;/name&amp;gt;
+            &amp;lt;/field&amp;gt;
+          &amp;lt;/fields&amp;gt;
+        &amp;lt;/register&amp;gt;
+      &amp;lt;/registers&amp;gt;
+    &amp;lt;/peripheral&amp;gt;
+  &amp;lt;/peripherals&amp;gt;
+&amp;lt;/device&amp;gt;&lt;/cmsisSrcFileContents&gt;
+                &lt;addressGroup&gt;&lt;/addressGroup&gt;
+                &lt;cmsisVars&gt;
+                    &lt;entry&gt;
+                        &lt;key&gt;log2_fifo_depth&lt;/key&gt;
+                        &lt;value&gt;3&lt;/value&gt;
+                    &lt;/entry&gt;
+                &lt;/cmsisVars&gt;
+            &lt;/cmsisInfo&gt;
         &lt;/interface&gt;
         &lt;interface&gt;
-            &lt;name&gt;m0&lt;/name&gt;
-            &lt;type&gt;avalon&lt;/type&gt;
-            &lt;isStart&gt;true&lt;/isStart&gt;
+            &lt;name&gt;i2c_serial&lt;/name&gt;
+            &lt;type&gt;conduit&lt;/type&gt;
+            &lt;isStart&gt;false&lt;/isStart&gt;
             &lt;ports&gt;
                 &lt;port&gt;
-                    &lt;name&gt;m0_waitrequest&lt;/name&gt;
-                    &lt;role&gt;waitrequest&lt;/role&gt;
+                    &lt;name&gt;sda_in&lt;/name&gt;
+                    &lt;role&gt;sda_in&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
                     &lt;width&gt;1&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
@@ -1586,17 +1478,8 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
                 &lt;port&gt;
-                    &lt;name&gt;m0_readdata&lt;/name&gt;
-                    &lt;role&gt;readdata&lt;/role&gt;
-                    &lt;direction&gt;Input&lt;/direction&gt;
-                    &lt;width&gt;32&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;m0_readdatavalid&lt;/name&gt;
-                    &lt;role&gt;readdatavalid&lt;/role&gt;
+                    &lt;name&gt;scl_in&lt;/name&gt;
+                    &lt;role&gt;scl_in&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
                     &lt;width&gt;1&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
@@ -1604,35 +1487,8 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
                 &lt;port&gt;
-                    &lt;name&gt;m0_burstcount&lt;/name&gt;
-                    &lt;role&gt;burstcount&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;m0_writedata&lt;/name&gt;
-                    &lt;role&gt;writedata&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;32&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;m0_address&lt;/name&gt;
-                    &lt;role&gt;address&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;36&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;m0_write&lt;/name&gt;
-                    &lt;role&gt;write&lt;/role&gt;
+                    &lt;name&gt;sda_oe&lt;/name&gt;
+                    &lt;role&gt;sda_oe&lt;/role&gt;
                     &lt;direction&gt;Output&lt;/direction&gt;
                     &lt;width&gt;1&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
@@ -1640,26 +1496,8 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
                 &lt;port&gt;
-                    &lt;name&gt;m0_read&lt;/name&gt;
-                    &lt;role&gt;read&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;m0_byteenable&lt;/name&gt;
-                    &lt;role&gt;byteenable&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;4&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-                &lt;port&gt;
-                    &lt;name&gt;m0_debugaccess&lt;/name&gt;
-                    &lt;role&gt;debugaccess&lt;/role&gt;
+                    &lt;name&gt;scl_oe&lt;/name&gt;
+                    &lt;role&gt;scl_oe&lt;/role&gt;
                     &lt;direction&gt;Output&lt;/direction&gt;
                     &lt;width&gt;1&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
@@ -1673,139 +1511,14 @@ https://fpgasoftware.intel.com/eula.-->
             &lt;parameters&gt;
                 &lt;parameterValueMap&gt;
                     &lt;entry&gt;
-                        &lt;key&gt;adaptsTo&lt;/key&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;addressGroup&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;addressUnits&lt;/key&gt;
-                        &lt;value&gt;SYMBOLS&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;alwaysBurstMaxBurst&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
                         &lt;key&gt;associatedClock&lt;/key&gt;
-                        &lt;value&gt;clk&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;associatedReset&lt;/key&gt;
-                        &lt;value&gt;reset&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;bitsPerSymbol&lt;/key&gt;
-                        &lt;value&gt;8&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;burstOnBurstBoundariesOnly&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;burstcountUnits&lt;/key&gt;
-                        &lt;value&gt;WORDS&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;constantBurstBehavior&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;dBSBigEndian&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;doStreamReads&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;doStreamWrites&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;holdTime&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;interleaveBursts&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;isAsynchronous&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;isBigEndian&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;isReadable&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;isWriteable&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;linewrapBursts&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;maxAddressWidth&lt;/key&gt;
-                        &lt;value&gt;32&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;maximumPendingReadTransactions&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;maximumPendingWriteTransactions&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;minimumReadLatency&lt;/key&gt;
-                        &lt;value&gt;1&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;minimumResponseLatency&lt;/key&gt;
-                        &lt;value&gt;1&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;prSafe&lt;/key&gt;
                         &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;readLatency&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;readWaitTime&lt;/key&gt;
-                        &lt;value&gt;1&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;registerIncomingSignals&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;registerOutgoingSignals&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;setupTime&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;timingUnits&lt;/key&gt;
-                        &lt;value&gt;Cycles&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;waitrequestAllowance&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;writeWaitTime&lt;/key&gt;
-                        &lt;value&gt;0&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/parameterValueMap&gt;
             &lt;/parameters&gt;
@@ -1819,32 +1532,35 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:value>&lt;systemInfosDefinition&gt;
     &lt;connPtSystemInfos&gt;
         &lt;entry&gt;
-            &lt;key&gt;m0&lt;/key&gt;
+            &lt;key&gt;clock&lt;/key&gt;
             &lt;value&gt;
-                &lt;connectionPointName&gt;m0&lt;/connectionPointName&gt;
+                &lt;connectionPointName&gt;clock&lt;/connectionPointName&gt;
                 &lt;suppliedSystemInfos&gt;
                     &lt;entry&gt;
-                        &lt;key&gt;ADDRESS_WIDTH&lt;/key&gt;
-                        &lt;value&gt;34&lt;/value&gt;
+                        &lt;key&gt;CLOCK_RATE&lt;/key&gt;
+                        &lt;value&gt;100000000&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/suppliedSystemInfos&gt;
                 &lt;consumedSystemInfos/&gt;
             &lt;/value&gt;
         &lt;/entry&gt;
         &lt;entry&gt;
-            &lt;key&gt;s0&lt;/key&gt;
+            &lt;key&gt;csr&lt;/key&gt;
             &lt;value&gt;
-                &lt;connectionPointName&gt;s0&lt;/connectionPointName&gt;
+                &lt;connectionPointName&gt;csr&lt;/connectionPointName&gt;
                 &lt;suppliedSystemInfos/&gt;
                 &lt;consumedSystemInfos&gt;
                     &lt;entry&gt;
                         &lt;key&gt;ADDRESS_MAP&lt;/key&gt;
+                        &lt;value&gt;&amp;lt;address-map&amp;gt;&amp;lt;slave name='csr' start='0x0' end='0x40' datawidth='32' /&amp;gt;&amp;lt;/address-map&amp;gt;&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;ADDRESS_WIDTH&lt;/key&gt;
+                        &lt;value&gt;6&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;MAX_SLAVE_DATA_WIDTH&lt;/key&gt;
+                        &lt;value&gt;32&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/consumedSystemInfos&gt;
             &lt;/value&gt;
@@ -1860,35 +1576,27 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:parameters>
     </altera:altera_system_parameters>
     <altera:altera_interface_boundary>
-      <altera:interface_mapping altera:name="clk" altera:internal="mm_bridge.clk" altera:type="clock" altera:dir="end">
+      <altera:interface_mapping altera:name="clock" altera:internal="i2c.clock" altera:type="clock" altera:dir="end">
         <altera:port_mapping altera:name="clk" altera:internal="clk"></altera:port_mapping>
       </altera:interface_mapping>
-      <altera:interface_mapping altera:name="m0" altera:internal="mm_bridge.m0" altera:type="avalon" altera:dir="start">
-        <altera:port_mapping altera:name="m0_address" altera:internal="m0_address"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_burstcount" altera:internal="m0_burstcount"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_byteenable" altera:internal="m0_byteenable"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_debugaccess" altera:internal="m0_debugaccess"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_read" altera:internal="m0_read"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_readdata" altera:internal="m0_readdata"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_readdatavalid" altera:internal="m0_readdatavalid"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_waitrequest" altera:internal="m0_waitrequest"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_write" altera:internal="m0_write"></altera:port_mapping>
-        <altera:port_mapping altera:name="m0_writedata" altera:internal="m0_writedata"></altera:port_mapping>
+      <altera:interface_mapping altera:name="csr" altera:internal="i2c.csr" altera:type="avalon" altera:dir="end">
+        <altera:port_mapping altera:name="addr" altera:internal="addr"></altera:port_mapping>
+        <altera:port_mapping altera:name="read" altera:internal="read"></altera:port_mapping>
+        <altera:port_mapping altera:name="readdata" altera:internal="readdata"></altera:port_mapping>
+        <altera:port_mapping altera:name="write" altera:internal="write"></altera:port_mapping>
+        <altera:port_mapping altera:name="writedata" altera:internal="writedata"></altera:port_mapping>
       </altera:interface_mapping>
-      <altera:interface_mapping altera:name="reset" altera:internal="mm_bridge.reset" altera:type="reset" altera:dir="end">
-        <altera:port_mapping altera:name="reset" altera:internal="reset"></altera:port_mapping>
+      <altera:interface_mapping altera:name="i2c_serial" altera:internal="i2c.i2c_serial" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="scl_in" altera:internal="scl_in"></altera:port_mapping>
+        <altera:port_mapping altera:name="scl_oe" altera:internal="scl_oe"></altera:port_mapping>
+        <altera:port_mapping altera:name="sda_in" altera:internal="sda_in"></altera:port_mapping>
+        <altera:port_mapping altera:name="sda_oe" altera:internal="sda_oe"></altera:port_mapping>
       </altera:interface_mapping>
-      <altera:interface_mapping altera:name="s0" altera:internal="mm_bridge.s0" altera:type="avalon" altera:dir="end">
-        <altera:port_mapping altera:name="s0_address" altera:internal="s0_address"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_burstcount" altera:internal="s0_burstcount"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_byteenable" altera:internal="s0_byteenable"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_debugaccess" altera:internal="s0_debugaccess"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_read" altera:internal="s0_read"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_readdata" altera:internal="s0_readdata"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_readdatavalid" altera:internal="s0_readdatavalid"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_waitrequest" altera:internal="s0_waitrequest"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_write" altera:internal="s0_write"></altera:port_mapping>
-        <altera:port_mapping altera:name="s0_writedata" altera:internal="s0_writedata"></altera:port_mapping>
+      <altera:interface_mapping altera:name="interrupt_sender" altera:internal="i2c.interrupt_sender" altera:type="interrupt" altera:dir="end">
+        <altera:port_mapping altera:name="intr" altera:internal="intr"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="reset_sink" altera:internal="i2c.reset_sink" altera:type="reset" altera:dir="end">
+        <altera:port_mapping altera:name="rst_n" altera:internal="rst_n"></altera:port_mapping>
       </altera:interface_mapping>
     </altera:altera_interface_boundary>
     <altera:altera_has_warnings>false</altera:altera_has_warnings>

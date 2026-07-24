@@ -107,21 +107,32 @@ GUI内存页 ─ISSP(MEM)─► issp_mem_bridge FSM ─Avalon 32bit─► mm_bri
 - 槽位映射：丝印 DIMM0/1/2/3 ↔ 信号 ddr4_mem[2]/[3]/[0]/[1]，
   各通道 132 条引脚约束（含 RZQ、150MHz 参考时钟）见 PINDEF ASSIGNMENTS
 
-## DDR4 校准调试状态（未通过，记录供后续）
+## DDR4 内存读写（已打通 ✓）
 
-EMIF 框架完整、参数按内存条（1Rx8 ECC RDIMM）合理配置，但校准未通过。
-诊断已确认**时钟/PLL/物理层全部正常**（ref_clk 有信号、4 通道 PLL 全锁定、
-6-pin 供电与接触正常）。系统性试遍 ECC on/off、DM on/off、几何、时序均无改善。
+**电脑可直接读写板上 8GB DDR4 RDIMM**（GUI 内存页 / `SysCon.mem_read/mem_write`），
+单通道（丝印 DIMM0），校准通过、跨 4GB 地址范围读写验证 14/14、数据保持正常，
+约 150+ 次操作/秒。
 
-两个致命障碍卡住继续深挖：
-1. 这版 S10 EMIF 的 `cal_debug` 只支持 JTAG 模式，而板卡 Catapult JTAG
-   streaming 会挂死 → **读不到校准报告**，只能盲试参数
-2. 无厂商板卡时序文件（board delay/skew），EMIF 用默认值可能训练余量不足
+**校准失败的两个根因与修法**（调试历程的结论，换板/扩通道必看）：
+1. **RDIMM 的 PAR/ALERT_n 必须连接**：`MEM_DDR4_ALERT_PAR_EN=true`，
+   alert_n 放置 `AC_LANES` lane0/pin10（par 固定在 lane0/pin11，与之相邻；
+   从 EMIF 生成的 readme 引脚表可推导）。PAR 悬空时 RCD 收不到有效
+   parity，四通道一致性立即失败。
+2. **时序参数让 IP 自动推导**：删除手工设置的 TCL/WTCL 后 IP 推导出
+   TCL=18/WTCL=12（手工锁的 CWL16 差 4 拍导致训练失败）。
 
-速率锁死 2400MT/s（150MHz 参考时钟 ×8 整数比，其他标准速率非整数比 PLL 不支持）。
+**地址映射**（经 ISSP 内存桥，34 位字地址）：
+| 基址 | 设备 |
+|------|------|
+| 0x0_0000_0000 | DDR4 8GB（FSM 可达前 4GB） |
+| 0x2_0000_0000 | I2C 主机 CSR（板级总线 AC28/AB28，可读 DIMM SPD，见 spd_read.py） |
+| 0x2_8000_0000 | EMIF cal_debug（校准调试窗口） |
 
-可能的后续突破口：Plugcat 的 OpenOCD（换 JTAG 栈或许能跑 EMIF Debug Toolkit
-读报告）；或 Corundum_fork_on_MSA2020（手册 3.5）的验证过 EMIF 配置。
+**SPD 实测**（HMA81GR7CJR8N-XN @ I2C 0x50）：DDR4/RDIMM/1Rx8/72bit 确认，
+RCD 厂商 0xB380（IDT/Renesas），校准用 EMIF 默认 RCD 参数即通过。
+
+**扩展多通道**：I/O 列3=DIMM0+DIMM1、列2=DIMM2+DIMM3；每列只允许一个
+cal_debug 调试接口；ba/bg 引脚修正表见 gen_ddr_pins.py FIXUPS（四槽齐全）。
 
 ## 二次开发
 

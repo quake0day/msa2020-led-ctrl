@@ -5,7 +5,7 @@
 //
 // source[95:0] (电脑 -> FPGA):
 //   [31:0]  写数据
-//   [61:32] 字地址 (FSM 左移2位转字节地址)
+//   [61:32] 字地址低30位  [75:72] 字地址高4位 (共34位字=64GB字节空间)
 //   [62]    1=写, 0=读
 //   [71:64] 命令序号 (与上次不同即触发执行, 上位机从 1 开始递增)
 // probe[63:0] (FPGA -> 电脑):
@@ -27,8 +27,8 @@ module issp_mem_bridge (
     input  wire [2:0]  pwr,            // {DDR_LDO_GD, SWITCH_GD, 12V}
     input  wire [15:0] usr_alive,      // 各 EMIF usr_clk 活动计数 (每通道4位)
     input  wire [15:0] ref_alive,      // 各 ref_clk 输入活动计数 (每通道4位)
-    // Avalon-MM master (32-bit)
-    output reg  [31:0] am_address,
+    // Avalon-MM master (32-bit 数据, 36-bit 字节地址)
+    output reg  [35:0] am_address,
     output reg         am_read,
     output reg         am_write,
     output reg  [31:0] am_writedata,
@@ -48,7 +48,7 @@ always @(posedge clk) begin
 end
 
 wire [31:0] c_wdata = s2[31:0];
-wire [29:0] c_addr  = s2[61:32];
+wire [33:0] c_addr  = {s2[75:72], s2[61:32]};   // 34位字地址
 wire        c_we    = s2[62];
 wire [7:0]  c_seq   = s2[71:64];
 

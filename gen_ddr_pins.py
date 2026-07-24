@@ -13,10 +13,10 @@ import sys
 import openpyxl
 
 SCALAR = {"ck", "ck_n", "act_n", "cke", "cs_n", "odt", "reset_n",
-          "oct_rzqin", "ref_clk"}
+          "oct_rzqin", "ref_clk", "par", "alert_n"}
 SCALAR_NAME = {"oct_rzqin": "rzqin"}          # 其余同名
 VECTOR = {"a": 17, "ba": 2, "bg": 2, "dq": 64, "dqs": 8, "dqs_n": 8, "dbi_n": 8}
-SKIP = {"par", "alert_n"}   # parity/alert 关闭; dbi_n 作为 DM 启用
+SKIP = set()                # par/alert 启用, dbi_n 作为 DM 启用
 
 # EMIF 对 A/C lane 内引脚索引有硬性放置规则, PINDEF 的 ba/bg 顺序需按
 # fitter 报告的合法位置对调 (bank 位置换功能透明)。按槽位记录:
@@ -31,9 +31,8 @@ FIXUPS = {
         "bg[0]": "PIN_F27", "bg[1]": "PIN_N30"},
 }
 
-# 注: PINDEF PIN 表 LED 列的 12V/SWITCH_GD/DDR_LDO_GD 实测均非 FPGA 用户 IO
-# (D17 位置非法, D10/D11 与 DDR 通道引脚冲突), 不可作为状态输入使用
-POWER_PINS = []
+# 板级 I2C (Plugcat 验证: SCL=AC28 SDA=AB28, Bank 6A, 3.0-V LVTTL)
+I2C_PINS = [("PIN_AC28", "i2c_scl"), ("PIN_AB28", "i2c_sda")]
 
 BEGIN, END = "# ---- DDR4 PINS BEGIN ----", "# ---- DDR4 PINS END ----"
 
@@ -79,11 +78,11 @@ def main():
     lines = []
     for s in slots:
         lines += ["# -- 丝印槽位 DIMM%d --" % s] + extract(xlsx, s)
-    lines += ["# -- 电源状态指示 --"]
-    lines += ["set_instance_assignment -name IO_STANDARD \"1.8 V\" -to %s" % n
-              for _, n in POWER_PINS]
+    lines += ["# -- 板级 I2C --"]
+    lines += ["set_instance_assignment -name IO_STANDARD \"3.0-V LVTTL\" -to %s" % n
+              for _, n in I2C_PINS]
     lines += ["set_location_assignment %s -to %s" % (p, n)
-              for p, n in POWER_PINS]
+              for p, n in I2C_PINS]
     print("共 %d 条约束 (%s)" % (len(lines), arg))
     with open("led_ctrl.qsf", encoding="utf-8") as f:
         qsf = f.read()

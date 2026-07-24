@@ -172,8 +172,10 @@ class SysCon:
         if not self.mem:
             raise RuntimeError("固件无内存通道 (需烧录含 issp_mem_bridge 的版本)")
         self.mem_seq = self.mem_seq % 255 + 1          # 1..255 循环, 避开 0
-        word = ((self.mem_seq << 64) | (int(we) << 62)
-                | ((addr >> 2 & 0x3FFFFFFF) << 32) | (wdata & 0xFFFFFFFF))
+        wa = addr >> 2                                 # 34位字地址
+        word = ((self.mem_seq << 64) | ((wa >> 30 & 0xF) << 72)
+                | (int(we) << 62)
+                | ((wa & 0x3FFFFFFF) << 32) | (wdata & 0xFFFFFFFF))
         self.tcl("issp_write_source_data %s 0x%X" % (self.mem, word))
         for _ in range(40):                            # 等 FSM 完成 (通常首轮即毕)
             p = int(self.tcl("issp_read_probe_data " + self.mem).strip(), 0)

@@ -4,3 +4,7 @@ create_clock -name clk100M -period 10.000 [get_ports clk100M]
 
 # LED 为人眼观察的慢速输出, 不做严格时序分析
 set_false_path -to [get_ports LED[*]]
+
+# 诊断用时钟活动计数器的跨时钟域同步器 (两级同步, 本质异步安全)
+set_false_path -from [get_registers {utog}] -to [get_registers {usy[0]}]
+set_false_path -from [get_registers {rtog}] -to [get_registers {rsy[0]}]
