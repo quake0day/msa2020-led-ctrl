@@ -18,8 +18,10 @@ quartus.rec*
 compile_full.log
 
 # Platform Designer 生成的 HDL (由 make_qsys.tcl + qsys-generate 重建)
-/jtag_sys/
-/ip/jtag_sys/*/
+0*/jtag_sys/
+0*/ip/jtag_sys/*/
+/qdb/
+qdb_old/
 
 # 大体积烧录文件 (.jic 256MB 超 GitHub 限制; 用 quartus_pfg 从 .sof 重建)
 *.jic
@@ -38,3 +40,4 @@ __pycache__/
 *.sldtmp
 *.legacy
 tmp/
+compile_*.log
