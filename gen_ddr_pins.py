@@ -15,8 +15,8 @@ import openpyxl
 SCALAR = {"ck", "ck_n", "act_n", "cke", "cs_n", "odt", "reset_n",
           "oct_rzqin", "ref_clk"}
 SCALAR_NAME = {"oct_rzqin": "rzqin"}          # 其余同名
-VECTOR = {"a": 17, "ba": 2, "bg": 2, "dq": 72, "dqs": 9, "dqs_n": 9}
-SKIP = {"dbi_n", "par", "alert_n"}            # DM/DBI 关闭; parity/alert 关闭
+VECTOR = {"a": 17, "ba": 2, "bg": 2, "dq": 64, "dqs": 8, "dqs_n": 8, "dbi_n": 8}
+SKIP = {"par", "alert_n"}   # parity/alert 关闭; dbi_n 作为 DM 启用
 
 # EMIF 对 A/C lane 内引脚索引有硬性放置规则, PINDEF 的 ba/bg 顺序需按
 # fitter 报告的合法位置对调 (bank 位置换功能透明)。按槽位记录:

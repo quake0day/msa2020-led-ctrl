@@ -37,3 +37,4 @@ __pycache__/
 *.pyc
 *.sldtmp
 *.legacy
+tmp/

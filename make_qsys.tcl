@@ -58,7 +58,7 @@ foreach i {0 1 2 3} {
         MEM_DDR4_NUM_OF_DIMMS           1
         MEM_DDR4_RANKS_PER_DIMM         1
         MEM_DDR4_CK_WIDTH               1
-        MEM_DDR4_DQ_WIDTH               72
+        MEM_DDR4_DQ_WIDTH               64
         MEM_DDR4_DQ_PER_DQS             8
         MEM_DDR4_ROW_ADDR_WIDTH         16
         MEM_DDR4_COL_ADDR_WIDTH         10
@@ -66,12 +66,12 @@ foreach i {0 1 2 3} {
         MEM_DDR4_BANK_GROUP_WIDTH       2
         MEM_DDR4_TCL                    17
         MEM_DDR4_WTCL                   16
-        MEM_DDR4_DM_EN                  false
+        MEM_DDR4_DM_EN                  true
         MEM_DDR4_ALERT_PAR_EN           false
         MEM_DDR4_READ_DBI               false
         MEM_DDR4_WRITE_DBI              false
-        CTRL_DDR4_ECC_EN                true
-        CTRL_DDR4_ECC_AUTO_CORRECTION_EN true
+        CTRL_DDR4_ECC_EN                false
+        CTRL_DDR4_ECC_AUTO_CORRECTION_EN false
     } {
         set_instance_parameter_value emif$i $p $v
     }

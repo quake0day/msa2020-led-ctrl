@@ -14,8 +14,9 @@ module led_ctrl (
     output wire [1:0]  ddr4_0_ba, ddr4_0_bg,
     output wire        ddr4_0_ck, ddr4_0_ck_n, ddr4_0_cke, ddr4_0_cs_n,
     output wire        ddr4_0_odt, ddr4_0_reset_n,
-    inout  wire [71:0] ddr4_0_dq,
-    inout  wire [8:0]  ddr4_0_dqs, ddr4_0_dqs_n,
+    inout  wire [63:0] ddr4_0_dq,
+    inout  wire [7:0]  ddr4_0_dqs, ddr4_0_dqs_n,
+    inout  wire [7:0]  ddr4_0_dbi_n,
 
     input  wire        ddr4_1_ref_clk, ddr4_1_rzqin,
     output wire [16:0] ddr4_1_a,
@@ -23,8 +24,9 @@ module led_ctrl (
     output wire [1:0]  ddr4_1_ba, ddr4_1_bg,
     output wire        ddr4_1_ck, ddr4_1_ck_n, ddr4_1_cke, ddr4_1_cs_n,
     output wire        ddr4_1_odt, ddr4_1_reset_n,
-    inout  wire [71:0] ddr4_1_dq,
-    inout  wire [8:0]  ddr4_1_dqs, ddr4_1_dqs_n,
+    inout  wire [63:0] ddr4_1_dq,
+    inout  wire [7:0]  ddr4_1_dqs, ddr4_1_dqs_n,
+    inout  wire [7:0]  ddr4_1_dbi_n,
 
     input  wire        ddr4_2_ref_clk, ddr4_2_rzqin,
     output wire [16:0] ddr4_2_a,
@@ -32,8 +34,9 @@ module led_ctrl (
     output wire [1:0]  ddr4_2_ba, ddr4_2_bg,
     output wire        ddr4_2_ck, ddr4_2_ck_n, ddr4_2_cke, ddr4_2_cs_n,
     output wire        ddr4_2_odt, ddr4_2_reset_n,
-    inout  wire [71:0] ddr4_2_dq,
-    inout  wire [8:0]  ddr4_2_dqs, ddr4_2_dqs_n,
+    inout  wire [63:0] ddr4_2_dq,
+    inout  wire [7:0]  ddr4_2_dqs, ddr4_2_dqs_n,
+    inout  wire [7:0]  ddr4_2_dbi_n,
 
     input  wire        ddr4_3_ref_clk, ddr4_3_rzqin,
     output wire [16:0] ddr4_3_a,
@@ -41,8 +44,9 @@ module led_ctrl (
     output wire [1:0]  ddr4_3_ba, ddr4_3_bg,
     output wire        ddr4_3_ck, ddr4_3_ck_n, ddr4_3_cke, ddr4_3_cs_n,
     output wire        ddr4_3_odt, ddr4_3_reset_n,
-    inout  wire [71:0] ddr4_3_dq,
-    inout  wire [8:0]  ddr4_3_dqs, ddr4_3_dqs_n
+    inout  wire [63:0] ddr4_3_dq,
+    inout  wire [7:0]  ddr4_3_dqs, ddr4_3_dqs_n,
+    inout  wire [7:0]  ddr4_3_dbi_n
 );
 
 wire [31:0] av_address;
@@ -97,6 +101,7 @@ jtag_sys u_jtag (
     .ddr0_mem_dqs          (ddr4_0_dqs),
     .ddr0_mem_dqs_n        (ddr4_0_dqs_n),
     .ddr0_mem_dq           (ddr4_0_dq),
+    .ddr0_mem_dbi_n       (ddr4_0_dbi_n),
     .ddr0_status_local_cal_success (cal_ok[0]),
     .ddr0_status_local_cal_fail    (cal_fail[0]),
     .ddr0_ctrl_read        (1'b0),
@@ -123,6 +128,7 @@ jtag_sys u_jtag (
     .ddr1_mem_dqs          (ddr4_1_dqs),
     .ddr1_mem_dqs_n        (ddr4_1_dqs_n),
     .ddr1_mem_dq           (ddr4_1_dq),
+    .ddr1_mem_dbi_n       (ddr4_1_dbi_n),
     .ddr1_status_local_cal_success (cal_ok[1]),
     .ddr1_status_local_cal_fail    (cal_fail[1]),
     .ddr1_ctrl_read        (1'b0),
@@ -149,6 +155,7 @@ jtag_sys u_jtag (
     .ddr2_mem_dqs          (ddr4_2_dqs),
     .ddr2_mem_dqs_n        (ddr4_2_dqs_n),
     .ddr2_mem_dq           (ddr4_2_dq),
+    .ddr2_mem_dbi_n       (ddr4_2_dbi_n),
     .ddr2_status_local_cal_success (cal_ok[2]),
     .ddr2_status_local_cal_fail    (cal_fail[2]),
     // DDR4 通道 3 (丝印 DIMM3)
@@ -167,6 +174,7 @@ jtag_sys u_jtag (
     .ddr3_mem_dqs          (ddr4_3_dqs),
     .ddr3_mem_dqs_n        (ddr4_3_dqs_n),
     .ddr3_mem_dq           (ddr4_3_dq),
+    .ddr3_mem_dbi_n       (ddr4_3_dbi_n),
     .ddr3_status_local_cal_success (cal_ok[3]),
     .ddr3_status_local_cal_fail    (cal_fail[3]),
     .ddr0_usrclk_clk       (usr_clk[0]),

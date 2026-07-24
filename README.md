@@ -107,6 +107,22 @@ GUI内存页 ─ISSP(MEM)─► issp_mem_bridge FSM ─Avalon 32bit─► mm_bri
 - 槽位映射：丝印 DIMM0/1/2/3 ↔ 信号 ddr4_mem[2]/[3]/[0]/[1]，
   各通道 132 条引脚约束（含 RZQ、150MHz 参考时钟）见 PINDEF ASSIGNMENTS
 
+## DDR4 校准调试状态（未通过，记录供后续）
+
+EMIF 框架完整、参数按内存条（1Rx8 ECC RDIMM）合理配置，但校准未通过。
+诊断已确认**时钟/PLL/物理层全部正常**（ref_clk 有信号、4 通道 PLL 全锁定、
+6-pin 供电与接触正常）。系统性试遍 ECC on/off、DM on/off、几何、时序均无改善。
+
+两个致命障碍卡住继续深挖：
+1. 这版 S10 EMIF 的 `cal_debug` 只支持 JTAG 模式，而板卡 Catapult JTAG
+   streaming 会挂死 → **读不到校准报告**，只能盲试参数
+2. 无厂商板卡时序文件（board delay/skew），EMIF 用默认值可能训练余量不足
+
+速率锁死 2400MT/s（150MHz 参考时钟 ×8 整数比，其他标准速率非整数比 PLL 不支持）。
+
+可能的后续突破口：Plugcat 的 OpenOCD（换 JTAG 栈或许能跑 EMIF Debug Toolkit
+读报告）；或 Corundum_fork_on_MSA2020（手册 3.5）的验证过 EMIF 配置。
+
 ## 二次开发
 
 以后想让电脑读板内其他数据（EMIF 校准状态、错误计数器等）：在

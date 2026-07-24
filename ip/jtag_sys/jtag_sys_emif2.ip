@@ -277,6 +277,14 @@ https://fpgasoftware.intel.com/eula.-->
                 <ipxact:name>mem_dq</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>mem_dbi_n</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>mem_dbi_n</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
           </ipxact:portMaps>
         </ipxact:abstractionType>
       </ipxact:abstractionTypes>
@@ -434,43 +442,6 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:parameters>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>ctrl_ecc_user_interrupt_0</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="conduit" version="23.3"></ipxact:busType>
-      <ipxact:abstractionTypes>
-        <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="23.3"></ipxact:abstractionRef>
-          <ipxact:portMaps>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>ctrl_ecc_user_interrupt</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>ctrl_ecc_user_interrupt_0</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-          </ipxact:portMaps>
-        </ipxact:abstractionType>
-      </ipxact:abstractionTypes>
-      <ipxact:slave></ipxact:slave>
-      <ipxact:parameters>
-        <ipxact:parameter parameterId="associatedClock" type="string">
-          <ipxact:name>associatedClock</ipxact:name>
-          <ipxact:displayName>associatedClock</ipxact:displayName>
-          <ipxact:value></ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="associatedReset" type="string">
-          <ipxact:name>associatedReset</ipxact:name>
-          <ipxact:displayName>associatedReset</ipxact:displayName>
-          <ipxact:value></ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="prSafe" type="bit">
-          <ipxact:name>prSafe</ipxact:name>
-          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-      </ipxact:parameters>
-    </ipxact:busInterface>
-    <ipxact:busInterface>
       <ipxact:name>ctrl_amm_0</ipxact:name>
       <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.3"></ipxact:busType>
       <ipxact:abstractionTypes>
@@ -531,6 +502,14 @@ https://fpgasoftware.intel.com/eula.-->
               </ipxact:logicalPort>
               <ipxact:physicalPort>
                 <ipxact:name>amm_burstcount_0</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>byteenable</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>amm_byteenable_0</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
             <ipxact:portMap>
@@ -1037,7 +1016,7 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:vectors>
             <ipxact:vector>
               <ipxact:left>0</ipxact:left>
-              <ipxact:right>8</ipxact:right>
+              <ipxact:right>7</ipxact:right>
             </ipxact:vector>
           </ipxact:vectors>
           <ipxact:wireTypeDefs>
@@ -1055,7 +1034,7 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:vectors>
             <ipxact:vector>
               <ipxact:left>0</ipxact:left>
-              <ipxact:right>8</ipxact:right>
+              <ipxact:right>7</ipxact:right>
             </ipxact:vector>
           </ipxact:vectors>
           <ipxact:wireTypeDefs>
@@ -1073,7 +1052,25 @@ https://fpgasoftware.intel.com/eula.-->
           <ipxact:vectors>
             <ipxact:vector>
               <ipxact:left>0</ipxact:left>
-              <ipxact:right>71</ipxact:right>
+              <ipxact:right>63</ipxact:right>
+            </ipxact:vector>
+          </ipxact:vectors>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>mem_dbi_n</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>inout</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector>
+              <ipxact:left>0</ipxact:left>
+              <ipxact:right>7</ipxact:right>
             </ipxact:vector>
           </ipxact:vectors>
           <ipxact:wireTypeDefs>
@@ -1122,18 +1119,6 @@ https://fpgasoftware.intel.com/eula.-->
       </ipxact:port>
       <ipxact:port>
         <ipxact:name>emif_usr_clk</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>out</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
-        <ipxact:name>ctrl_ecc_user_interrupt_0</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>out</ipxact:direction>
           <ipxact:wireTypeDefs>
@@ -1242,6 +1227,24 @@ https://fpgasoftware.intel.com/eula.-->
             <ipxact:vector>
               <ipxact:left>0</ipxact:left>
               <ipxact:right>6</ipxact:right>
+            </ipxact:vector>
+          </ipxact:vectors>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>amm_byteenable_0</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector>
+              <ipxact:left>0</ipxact:left>
+              <ipxact:right>63</ipxact:right>
             </ipxact:vector>
           </ipxact:vectors>
           <ipxact:wireTypeDefs>
@@ -3548,7 +3551,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="MEM_DDR4_DQ_WIDTH" type="int">
           <ipxact:name>MEM_DDR4_DQ_WIDTH</ipxact:name>
           <ipxact:displayName>DQ width</ipxact:displayName>
-          <ipxact:value>72</ipxact:value>
+          <ipxact:value>64</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="MEM_DDR4_DQ_PER_DQS" type="int">
           <ipxact:name>MEM_DDR4_DQ_PER_DQS</ipxact:name>
@@ -3608,7 +3611,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="MEM_DDR4_DM_EN" type="bit">
           <ipxact:name>MEM_DDR4_DM_EN</ipxact:name>
           <ipxact:displayName>Data mask</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
+          <ipxact:value>true</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="MEM_DDR4_ALERT_PAR_EN" type="bit">
           <ipxact:name>MEM_DDR4_ALERT_PAR_EN</ipxact:name>
@@ -6878,12 +6881,12 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="CTRL_DDR4_ECC_EN" type="bit">
           <ipxact:name>CTRL_DDR4_ECC_EN</ipxact:name>
           <ipxact:displayName>Enable Error Detection and Correction Logic with ECC</ipxact:displayName>
-          <ipxact:value>true</ipxact:value>
+          <ipxact:value>false</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="CTRL_DDR4_ECC_AUTO_CORRECTION_EN" type="bit">
           <ipxact:name>CTRL_DDR4_ECC_AUTO_CORRECTION_EN</ipxact:name>
           <ipxact:displayName>Enable Auto Error Correction to External Memory</ipxact:displayName>
-          <ipxact:value>true</ipxact:value>
+          <ipxact:value>false</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="CTRL_DDR4_ECC_READDATAERROR_EN" type="bit">
           <ipxact:name>CTRL_DDR4_ECC_READDATAERROR_EN</ipxact:name>
@@ -9479,7 +9482,7 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;name&gt;mem_dqs&lt;/name&gt;
                     &lt;role&gt;mem_dqs&lt;/role&gt;
                     &lt;direction&gt;Bidir&lt;/direction&gt;
-                    &lt;width&gt;9&lt;/width&gt;
+                    &lt;width&gt;8&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
@@ -9488,7 +9491,7 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;name&gt;mem_dqs_n&lt;/name&gt;
                     &lt;role&gt;mem_dqs_n&lt;/role&gt;
                     &lt;direction&gt;Bidir&lt;/direction&gt;
-                    &lt;width&gt;9&lt;/width&gt;
+                    &lt;width&gt;8&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
@@ -9497,7 +9500,16 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;name&gt;mem_dq&lt;/name&gt;
                     &lt;role&gt;mem_dq&lt;/role&gt;
                     &lt;direction&gt;Bidir&lt;/direction&gt;
-                    &lt;width&gt;72&lt;/width&gt;
+                    &lt;width&gt;64&lt;/width&gt;
+                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
+                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
+                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
+                &lt;/port&gt;
+                &lt;port&gt;
+                    &lt;name&gt;mem_dbi_n&lt;/name&gt;
+                    &lt;role&gt;mem_dbi_n&lt;/role&gt;
+                    &lt;direction&gt;Bidir&lt;/direction&gt;
+                    &lt;width&gt;8&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
@@ -9642,39 +9654,6 @@ https://fpgasoftware.intel.com/eula.-->
             &lt;/parameters&gt;
         &lt;/interface&gt;
         &lt;interface&gt;
-            &lt;name&gt;ctrl_ecc_user_interrupt_0&lt;/name&gt;
-            &lt;type&gt;conduit&lt;/type&gt;
-            &lt;isStart&gt;false&lt;/isStart&gt;
-            &lt;ports&gt;
-                &lt;port&gt;
-                    &lt;name&gt;ctrl_ecc_user_interrupt_0&lt;/name&gt;
-                    &lt;role&gt;ctrl_ecc_user_interrupt&lt;/role&gt;
-                    &lt;direction&gt;Output&lt;/direction&gt;
-                    &lt;width&gt;1&lt;/width&gt;
-                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
-                    &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
-                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
-                &lt;/port&gt;
-            &lt;/ports&gt;
-            &lt;assignments&gt;
-                &lt;assignmentValueMap/&gt;
-            &lt;/assignments&gt;
-            &lt;parameters&gt;
-                &lt;parameterValueMap&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;associatedClock&lt;/key&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;associatedReset&lt;/key&gt;
-                    &lt;/entry&gt;
-                    &lt;entry&gt;
-                        &lt;key&gt;prSafe&lt;/key&gt;
-                        &lt;value&gt;false&lt;/value&gt;
-                    &lt;/entry&gt;
-                &lt;/parameterValueMap&gt;
-            &lt;/parameters&gt;
-        &lt;/interface&gt;
-        &lt;interface&gt;
             &lt;name&gt;ctrl_amm_0&lt;/name&gt;
             &lt;type&gt;avalon&lt;/type&gt;
             &lt;isStart&gt;false&lt;/isStart&gt;
@@ -9738,6 +9717,15 @@ https://fpgasoftware.intel.com/eula.-->
                     &lt;role&gt;burstcount&lt;/role&gt;
                     &lt;direction&gt;Input&lt;/direction&gt;
                     &lt;width&gt;7&lt;/width&gt;
+                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
+                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
+                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
+                &lt;/port&gt;
+                &lt;port&gt;
+                    &lt;name&gt;amm_byteenable_0&lt;/name&gt;
+                    &lt;role&gt;byteenable&lt;/role&gt;
+                    &lt;direction&gt;Input&lt;/direction&gt;
+                    &lt;width&gt;64&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
@@ -10031,15 +10019,13 @@ https://fpgasoftware.intel.com/eula.-->
       <altera:interface_mapping altera:name="ctrl_amm_0" altera:internal="emif2.ctrl_amm_0" altera:type="avalon" altera:dir="end">
         <altera:port_mapping altera:name="amm_address_0" altera:internal="amm_address_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_burstcount_0" altera:internal="amm_burstcount_0"></altera:port_mapping>
+        <altera:port_mapping altera:name="amm_byteenable_0" altera:internal="amm_byteenable_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_read_0" altera:internal="amm_read_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_readdata_0" altera:internal="amm_readdata_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_readdatavalid_0" altera:internal="amm_readdatavalid_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_ready_0" altera:internal="amm_ready_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_write_0" altera:internal="amm_write_0"></altera:port_mapping>
         <altera:port_mapping altera:name="amm_writedata_0" altera:internal="amm_writedata_0"></altera:port_mapping>
-      </altera:interface_mapping>
-      <altera:interface_mapping altera:name="ctrl_ecc_user_interrupt_0" altera:internal="emif2.ctrl_ecc_user_interrupt_0" altera:type="conduit" altera:dir="end">
-        <altera:port_mapping altera:name="ctrl_ecc_user_interrupt_0" altera:internal="ctrl_ecc_user_interrupt_0"></altera:port_mapping>
       </altera:interface_mapping>
       <altera:interface_mapping altera:name="emif_usr_clk" altera:internal="emif2.emif_usr_clk" altera:type="clock" altera:dir="start">
         <altera:port_mapping altera:name="emif_usr_clk" altera:internal="emif_usr_clk"></altera:port_mapping>
@@ -10062,6 +10048,7 @@ https://fpgasoftware.intel.com/eula.-->
         <altera:port_mapping altera:name="mem_ck_n" altera:internal="mem_ck_n"></altera:port_mapping>
         <altera:port_mapping altera:name="mem_cke" altera:internal="mem_cke"></altera:port_mapping>
         <altera:port_mapping altera:name="mem_cs_n" altera:internal="mem_cs_n"></altera:port_mapping>
+        <altera:port_mapping altera:name="mem_dbi_n" altera:internal="mem_dbi_n"></altera:port_mapping>
         <altera:port_mapping altera:name="mem_dq" altera:internal="mem_dq"></altera:port_mapping>
         <altera:port_mapping altera:name="mem_dqs" altera:internal="mem_dqs"></altera:port_mapping>
         <altera:port_mapping altera:name="mem_dqs_n" altera:internal="mem_dqs_n"></altera:port_mapping>
@@ -10087,7 +10074,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:version>1.0</ipxact:version>
         <ipxact:busInterfaces>
           <ipxact:busInterface>
-            <ipxact:name>ecc_core.ctrl_amm_0</ipxact:name>
+            <ipxact:name>arch.ctrl_amm_0</ipxact:name>
             <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.3"></ipxact:busType>
             <ipxact:slave></ipxact:slave>
           </ipxact:busInterface>
