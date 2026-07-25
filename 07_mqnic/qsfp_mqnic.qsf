@@ -14,7 +14,6 @@ set_global_assignment -name USE_PWRMGT_SDA SDM_IO11
 set_global_assignment -name ACTIVE_SERIAL_CLOCK AS_FREQ_115MHZ_IOSC
 set_global_assignment -name USE_CONF_DONE SDM_IO16
 set_global_assignment -name USE_INIT_DONE SDM_IO0
-set_global_assignment -name USE_CVP_CONFDONE SDM_IO13
 # IPs (全部按 A-2020 器件生成)
 set_global_assignment -name IP_FILE ip/pcie.ip
 set_global_assignment -name IP_FILE ip/iopll_100mhz.ip
@@ -219,3 +218,4 @@ set_instance_assignment -name VIRTUAL_PIN ON -to qsfp_irq_n[2]
 set_instance_assignment -name VIRTUAL_PIN ON -to qsfp_irq_n[3]
 set_global_assignment -name LAST_QUARTUS_VERSION "23.3.0 Pro Edition"
 set_global_assignment -name SDC_FILE qsfp_mqnic.sdc
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION ON
