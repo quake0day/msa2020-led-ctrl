@@ -20,7 +20,7 @@ proc do_create_pcie {} {
 	set_instance_parameter_value pcie_s10_hip_ast_0 {bfm_drive_interface_npor_hwtcl} {1}
 	set_instance_parameter_value pcie_s10_hip_ast_0 {bfm_drive_interface_pipe_hwtcl} {1}
 	set_instance_parameter_value pcie_s10_hip_ast_0 {ceb_extend_pcie_hwtcl} {0}
-	set_instance_parameter_value pcie_s10_hip_ast_0 {chosen_devkit_hwtcl} {Stratix 10 GX H-Tile Production FPGA Development Kit}
+	set_instance_parameter_value pcie_s10_hip_ast_0 {chosen_devkit_hwtcl} {NONE}
 	set_instance_parameter_value pcie_s10_hip_ast_0 {cvp_user_id_hwtcl} {0}
 	set_instance_parameter_value pcie_s10_hip_ast_0 {design_environment} {NATIVE}
 	set_instance_parameter_value pcie_s10_hip_ast_0 {device_ctrl_enable_hwtcl} {0}

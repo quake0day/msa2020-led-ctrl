@@ -9331,7 +9331,7 @@ https://fpgasoftware.intel.com/eula.-->
         <ipxact:parameter parameterId="chosen_devkit_hwtcl" type="string">
           <ipxact:name>chosen_devkit_hwtcl</ipxact:name>
           <ipxact:displayName>Current development kit:</ipxact:displayName>
-          <ipxact:value>Stratix 10 GX H-Tile Production FPGA Development Kit</ipxact:value>
+          <ipxact:value>NONE</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
     </altera:altera_module_parameters>
@@ -9851,6 +9851,6 @@ https://fpgasoftware.intel.com/eula.-->
       </altera:interface_mapping>
     </altera:altera_interface_boundary>
     <altera:altera_has_warnings>true</altera:altera_has_warnings>
-    <altera:altera_has_errors>true</altera:altera_has_errors>
+    <altera:altera_has_errors>false</altera:altera_has_errors>
   </ipxact:vendorExtensions>
 </ipxact:component>

@@ -98,8 +98,7 @@ wire [1:0] phy_rx_hdr;
 wire [DATA_WIDTH-1:0] phy_rx_data;
 
 assign {xcvr_tx_hdr, xcvr_tx_data} = {phy_tx_data, phy_tx_hdr};
-// 内部串行环回(rx_seriallpbken)会反相: 对 RX 数据取反补偿, 让 PCS PRBS31 干净锁定
-assign {phy_rx_data, phy_rx_hdr} = ~{xcvr_rx_hdr, xcvr_rx_data};
+assign {phy_rx_data, phy_rx_hdr} = {xcvr_rx_hdr, xcvr_rx_data};
 
 wire xcvr_rx_bitslip;
 
@@ -156,7 +155,6 @@ if (GXT) begin
         .rx_cdr_refclk0          (xcvr_rx_cdr_refclk),
         .tx_serial_data          (xcvr_tx_serial_data),
         .rx_serial_data          (xcvr_rx_serial_data),
-        .rx_seriallpbken         (1'b1),  // 内部串行环回 (自测 PRBS)
         .rx_is_lockedtoref       (xcvr_rx_is_lockedtoref),
         .rx_is_lockedtodata      (xcvr_rx_is_lockedtodata),
         .tx_coreclkin            (xcvr_tx_clk),

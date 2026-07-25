@@ -1,4 +1,33 @@
-# 阶段4 — Corundum mqnic 移植到 A-2020（进行中）
+# 阶段4 — Corundum mqnic 移植到 A-2020
+
+## ★ 状态: 已编译通过, 生成 .sof (2026-07-24) ★
+
+完整 NIC (PCIe Gen3 x16 硬核 + mqnic DMA 核 + QSFP0 4×25G 收发器) 在 A-2020
+器件上**编译通过, output_files/qsfp_mqnic.sof 已生成**。工程 qsfp_mqnic.qsf。
+> 验证需把板卡插进**主机 PCIe 槽**, 加载 mqnic 驱动枚举网卡 (JTAG 台面连接测不了)。
+
+**移植踩坑记录 (从 4 QSFP 缩到 1 + A-2020, ~8 轮编译)**:
+1. PCIe IP devkit: 用 `chosen_devkit_hwtcl {NONE}`(本板 1SG280LN2 只认 L-Tile
+   devkit, 选 H-Tile 报 out of range 并强改器件)。
+2. Verilog 源清单: Makefile 第一行 `SYN_FILES = rtl/fpga.v` 用 `=` 不是 `+=`,
+   grep `+=` 会漏掉顶层 fpga.v。
+3. **Windows 路径**: qsf 里 Corundum 源必须用 `H:/led_ctrl/...` 不能用
+   git-bash 的 `/h/...`(否则 114 个文件全 "Can't analyze", 整个 mqnic 核变
+   blackbox → "cannot connect unsized constant 0")。
+4. PCIe IP 版本差异: 23.3 IP 无 `app_msi_func_num`/`app_err_func_num` 端口
+   (单功能配置), 顶层实例化要删掉这些连接。
+5. 4→1 缩减后末尾端口留下悬空逗号 (port,\n\n); ) 要删。
+6. 引脚同 bank 电压冲突: pcie_perstn(AC26) 与 I2C(bank 6A) 同 bank, 都设
+   3.0-V LVTTL。
+7. **收发器时钟-三联组映射**: mqnic 引脚按三联组连续排 (tx[0,1]=下 ch0,1 /
+   tx[2,3]=上 ch3,4), 用 Corundum **默认** quad wrapper 映射 (phy_1,2→clk[0] /
+   phy_3,4→clk[1]); 别套阶段1 的 06_qsfp_xcvr 那版(引脚顺序不同, 会错位)。
+8. SDC 要补 ref_div clock_div4 / iopll_100mhz / sync_reset 的异步约束。
+
+---
+（以下为移植前的规划记录）
+
+# 阶段4 — Corundum mqnic 移植到 A-2020（原规划）
 
 ## 已完成的基础（本会话）
 

@@ -43,12 +43,6 @@ module eth_xcvr_phy_quad_wrapper #
     input  wire [3:0]             xcvr_rx_serial_data,
 
     /*
-     * 诊断状态输出
-     */
-    output wire                   dbg_gxt_pll_locked,
-    output wire                   dbg_gxt_pll_cal_busy,
-
-    /*
      * PHY connections
      */
     output wire                   phy_1_tx_clk,
@@ -171,9 +165,6 @@ end
 
 endgenerate
 
-assign dbg_gxt_pll_locked   = xcvr_gxt_pll_locked;
-assign dbg_gxt_pll_cal_busy = xcvr_gxt_pll_cal_busy;
-
 eth_xcvr_phy_wrapper #(
     .GXT(GXT),
     .DATA_WIDTH(DATA_WIDTH),
@@ -243,7 +234,7 @@ eth_xcvr_phy_2 (
     .xcvr_gx_pll_cal_busy(xcvr_gx_pll_cal_busy),
     .xcvr_gxt_pll_cal_busy(xcvr_gxt_pll_cal_busy),
     .xcvr_tx_serial_gx_clk(xcvr_tx_serial_gx_clk),
-    .xcvr_tx_serial_gxt_clk(xcvr_tx_serial_gxt_clk[1]),
+    .xcvr_tx_serial_gxt_clk(xcvr_tx_serial_gxt_clk[0]),
     .xcvr_rx_cdr_refclk(xcvr_ref_clk),
     .xcvr_tx_serial_data(xcvr_tx_serial_data[1]),
     .xcvr_rx_serial_data(xcvr_rx_serial_data[1]),
@@ -337,7 +328,7 @@ eth_xcvr_phy_4 (
     .xcvr_gx_pll_cal_busy(xcvr_gx_pll_cal_busy),
     .xcvr_gxt_pll_cal_busy(xcvr_gxt_pll_cal_busy),
     .xcvr_tx_serial_gx_clk(xcvr_tx_serial_gx_clk),
-    .xcvr_tx_serial_gxt_clk(xcvr_tx_serial_gxt_clk[0]),
+    .xcvr_tx_serial_gxt_clk(xcvr_tx_serial_gxt_clk[1]),
     .xcvr_rx_cdr_refclk(xcvr_ref_clk),
     .xcvr_tx_serial_data(xcvr_tx_serial_data[3]),
     .xcvr_rx_serial_data(xcvr_rx_serial_data[3]),
