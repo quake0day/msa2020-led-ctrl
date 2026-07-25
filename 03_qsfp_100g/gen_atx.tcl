@@ -1,0 +1,11 @@
+package require qsys
+create_system {macatx}
+set_project_property DEVICE {1SG280LN2F43E2VG}
+set_project_property DEVICE_FAMILY {Stratix 10}
+add_instance pll altera_xcvr_atx_pll_s10_htile
+set_instance_property pll AUTO_EXPORT true
+set_instance_parameter_value pll set_auto_reference_clock_frequency 644.53125
+set_instance_parameter_value pll primary_pll_buffer {GXT clock output buffer}
+set_instance_parameter_value pll enable_28G_local_atx_path 1
+set_instance_parameter_value pll set_output_clock_frequency 12890.625
+save_system ip/macatx.ip

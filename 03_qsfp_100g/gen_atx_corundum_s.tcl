@@ -1,0 +1,15 @@
+package require qsys
+# SLAVE = Corundum eth_xcvr_gxt_buf: 从下方 master 取时钟做缓冲(非独立PLL)
+create_system {macatx_s}
+set_project_property DEVICE {1SG280LN2F43E2VG}
+set_project_property DEVICE_FAMILY {Stratix 10}
+add_instance b altera_xcvr_atx_pll_s10_htile
+set_instance_property b AUTO_EXPORT true
+set_instance_parameter_value b set_auto_reference_clock_frequency 644.53125
+set_instance_parameter_value b primary_pll_buffer {GXT clock output buffer}
+set_instance_parameter_value b enable_28G_local_atx_path 1
+set_instance_parameter_value b enable_28G_input_frm_blw_atx 1
+set_instance_parameter_value b enable_GXT_clock_source atx_blw
+set_instance_parameter_value b enable_GXT_out_buffer_abv 0
+set_instance_parameter_value b set_output_clock_frequency 12890.625
+save_system ip/macatx_s.ip

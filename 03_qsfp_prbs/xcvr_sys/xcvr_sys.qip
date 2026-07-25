@@ -1,0 +1,53 @@
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_TOOL_NAME "QsysPrimePro"
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_TOOL_VERSION "23.3"
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_TOOL_ENV "QsysPrimePro"
+set_global_assignment -library "xcvr_sys" -name SOPCINFO_FILE [file join $::quartus(qip_path) "xcvr_sys.sopcinfo"]
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name SLD_INFO "QSYS_NAME xcvr_sys HAS_SOPCINFO 1 GENERATION_ID 0"
+set_global_assignment -library "xcvr_sys" -name MISC_FILE [file join $::quartus(qip_path) "xcvr_sys.cmp"]
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_TARGETED_DEVICE_FAMILY "Stratix 10"
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_GENERATED_DEVICE_FAMILY "{Stratix 10}"
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_QSYS_MODE "SYSTEM"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "xcvr_sys" -name MISC_FILE [file join $::quartus(qip_path) "../xcvr_sys.qsys"]
+
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_NAME "eGN2cl9zeXNfYXR4MA=="
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_DISPLAY_NAME "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_DESCRIPTION "QSBkeW5hbWljIGNvbXBvbmVudCB3aGVyZSB5b3UgY2FuIGFkZCwgbW9kaWZ5IG9yIHJlbW92ZSBpbnRlcmZhY2VzIGFuZCBwb3J0cyBvbiB0aGUgZmx5"
+set_global_assignment -entity "xcvr_sys_atx0" -library "xcvr_sys_atx0" -name IP_COMPONENT_GROUP "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_NAME "eGN2cl9zeXNfYXR4MQ=="
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_DISPLAY_NAME "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_DESCRIPTION "QSBkeW5hbWljIGNvbXBvbmVudCB3aGVyZSB5b3UgY2FuIGFkZCwgbW9kaWZ5IG9yIHJlbW92ZSBpbnRlcmZhY2VzIGFuZCBwb3J0cyBvbiB0aGUgZmx5"
+set_global_assignment -entity "xcvr_sys_atx1" -library "xcvr_sys_atx1" -name IP_COMPONENT_GROUP "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_NAME "eGN2cl9zeXNfcGh5"
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_DISPLAY_NAME "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_DESCRIPTION "QSBkeW5hbWljIGNvbXBvbmVudCB3aGVyZSB5b3UgY2FuIGFkZCwgbW9kaWZ5IG9yIHJlbW92ZSBpbnRlcmZhY2VzIGFuZCBwb3J0cyBvbiB0aGUgZmx5"
+set_global_assignment -entity "xcvr_sys_phy" -library "xcvr_sys_phy" -name IP_COMPONENT_GROUP "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_NAME "eGN2cl9zeXNfcGh5Zg=="
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_DISPLAY_NAME "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_DESCRIPTION "QSBkeW5hbWljIGNvbXBvbmVudCB3aGVyZSB5b3UgY2FuIGFkZCwgbW9kaWZ5IG9yIHJlbW92ZSBpbnRlcmZhY2VzIGFuZCBwb3J0cyBvbiB0aGUgZmx5"
+set_global_assignment -entity "xcvr_sys_phyf" -library "xcvr_sys_phyf" -name IP_COMPONENT_GROUP "R2VuZXJpYyBDb21wb25lbnQ="
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_COMPONENT_NAME "eGN2cl9zeXM="
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_COMPONENT_DISPLAY_NAME "eGN2cl9zeXM="
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "xcvr_sys" -library "xcvr_sys" -name IP_COMPONENT_VERSION "MS4w"
+
+
+set_global_assignment -library "xcvr_sys" -name VERILOG_FILE [file join $::quartus(qip_path) "synth/xcvr_sys.v"]
+

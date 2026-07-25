@@ -1,0 +1,9 @@
+package require qsys
+create_system {macfpll}
+set_project_property DEVICE {1SG280LN2F43E2VG}
+set_project_property DEVICE_FAMILY {Stratix 10}
+add_instance pll altera_xcvr_fpll_s10_htile
+set_instance_property pll AUTO_EXPORT true
+set_instance_parameter_value pll set_fref_clock_frequency 644.53125
+set_instance_parameter_value pll set_output_clock_frequency 12890.625
+save_system ip/macfpll.ip

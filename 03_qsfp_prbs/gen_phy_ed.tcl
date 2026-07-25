@@ -1,0 +1,24 @@
+package require qsys
+create_system {phy_ed}
+set_project_property DEVICE {1SG280LN2F43E2VG}
+set_project_property DEVICE_FAMILY {Stratix 10}
+add_instance phy altera_xcvr_native_s10_htile
+set_instance_property phy AUTO_EXPORT true
+set_instance_parameter_value phy channel_type GXT
+set_instance_parameter_value phy anlg_voltage 1_1V
+set_instance_parameter_value phy protocol_mode basic_enh
+set_instance_parameter_value phy pma_mode basic
+set_instance_parameter_value phy channels 4
+set_instance_parameter_value phy set_data_rate 25781.25
+set_instance_parameter_value phy set_cdr_refclk_freq 644.53125
+set_instance_parameter_value phy tx_pll_refclk 644.53125
+set_instance_parameter_value phy enh_pcs_pma_width 64
+set_instance_parameter_value phy enh_pld_pcs_width 64
+set_instance_parameter_value phy enable_simple_interface 1
+set_instance_parameter_value phy enable_split_interface 1
+set_instance_parameter_value phy duplex_mode duplex
+set_instance_parameter_value phy enable_port_rx_seriallpbken 1
+set_instance_parameter_value phy enable_port_rx_fifo_rd_en 1
+catch { set_instance_parameter_value phy cannot_gen_exdesign_msg "" }
+puts "MSG_AFTER: [get_instance_parameter_value phy cannot_gen_exdesign_msg]"
+save_system ip_ed/phy_ed.ip

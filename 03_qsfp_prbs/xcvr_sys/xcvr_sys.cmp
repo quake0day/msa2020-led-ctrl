@@ -1,0 +1,112 @@
+	component xcvr_sys is
+		port (
+			refclk_clk                                      : in  std_logic                     := 'X';             -- clk
+			pll_locked_pll_locked                           : out std_logic;                                        -- pll_locked
+			refclk1_clk                                     : in  std_logic                     := 'X';             -- clk
+			pll_locked1_pll_locked                          : out std_logic;                                        -- pll_locked
+			x_tx_analogreset_ch0_tx_analogreset             : in  std_logic                     := 'X';             -- tx_analogreset
+			x_tx_analogreset_ch1_tx_analogreset             : in  std_logic                     := 'X';             -- tx_analogreset
+			x_tx_analogreset_ch2_tx_analogreset             : in  std_logic                     := 'X';             -- tx_analogreset
+			x_tx_analogreset_ch3_tx_analogreset             : in  std_logic                     := 'X';             -- tx_analogreset
+			x_rx_analogreset_ch0_rx_analogreset             : in  std_logic                     := 'X';             -- rx_analogreset
+			x_rx_analogreset_ch1_rx_analogreset             : in  std_logic                     := 'X';             -- rx_analogreset
+			x_rx_analogreset_ch2_rx_analogreset             : in  std_logic                     := 'X';             -- rx_analogreset
+			x_rx_analogreset_ch3_rx_analogreset             : in  std_logic                     := 'X';             -- rx_analogreset
+			x_tx_digitalreset_ch0_tx_digitalreset           : in  std_logic                     := 'X';             -- tx_digitalreset
+			x_tx_digitalreset_ch1_tx_digitalreset           : in  std_logic                     := 'X';             -- tx_digitalreset
+			x_tx_digitalreset_ch2_tx_digitalreset           : in  std_logic                     := 'X';             -- tx_digitalreset
+			x_tx_digitalreset_ch3_tx_digitalreset           : in  std_logic                     := 'X';             -- tx_digitalreset
+			x_rx_digitalreset_ch0_rx_digitalreset           : in  std_logic                     := 'X';             -- rx_digitalreset
+			x_rx_digitalreset_ch1_rx_digitalreset           : in  std_logic                     := 'X';             -- rx_digitalreset
+			x_rx_digitalreset_ch2_rx_digitalreset           : in  std_logic                     := 'X';             -- rx_digitalreset
+			x_rx_digitalreset_ch3_rx_digitalreset           : in  std_logic                     := 'X';             -- rx_digitalreset
+			x_tx_analogreset_stat_ch0_tx_analogreset_stat   : out std_logic;                                        -- tx_analogreset_stat
+			x_tx_analogreset_stat_ch1_tx_analogreset_stat   : out std_logic;                                        -- tx_analogreset_stat
+			x_tx_analogreset_stat_ch2_tx_analogreset_stat   : out std_logic;                                        -- tx_analogreset_stat
+			x_tx_analogreset_stat_ch3_tx_analogreset_stat   : out std_logic;                                        -- tx_analogreset_stat
+			x_rx_analogreset_stat_ch0_rx_analogreset_stat   : out std_logic;                                        -- rx_analogreset_stat
+			x_rx_analogreset_stat_ch1_rx_analogreset_stat   : out std_logic;                                        -- rx_analogreset_stat
+			x_rx_analogreset_stat_ch2_rx_analogreset_stat   : out std_logic;                                        -- rx_analogreset_stat
+			x_rx_analogreset_stat_ch3_rx_analogreset_stat   : out std_logic;                                        -- rx_analogreset_stat
+			x_tx_digitalreset_stat_ch0_tx_digitalreset_stat : out std_logic;                                        -- tx_digitalreset_stat
+			x_tx_digitalreset_stat_ch1_tx_digitalreset_stat : out std_logic;                                        -- tx_digitalreset_stat
+			x_tx_digitalreset_stat_ch2_tx_digitalreset_stat : out std_logic;                                        -- tx_digitalreset_stat
+			x_tx_digitalreset_stat_ch3_tx_digitalreset_stat : out std_logic;                                        -- tx_digitalreset_stat
+			x_rx_digitalreset_stat_ch0_rx_digitalreset_stat : out std_logic;                                        -- rx_digitalreset_stat
+			x_rx_digitalreset_stat_ch1_rx_digitalreset_stat : out std_logic;                                        -- rx_digitalreset_stat
+			x_rx_digitalreset_stat_ch2_rx_digitalreset_stat : out std_logic;                                        -- rx_digitalreset_stat
+			x_rx_digitalreset_stat_ch3_rx_digitalreset_stat : out std_logic;                                        -- rx_digitalreset_stat
+			x_tx_cal_busy_ch0_tx_cal_busy                   : out std_logic;                                        -- tx_cal_busy
+			x_tx_cal_busy_ch1_tx_cal_busy                   : out std_logic;                                        -- tx_cal_busy
+			x_tx_cal_busy_ch2_tx_cal_busy                   : out std_logic;                                        -- tx_cal_busy
+			x_tx_cal_busy_ch3_tx_cal_busy                   : out std_logic;                                        -- tx_cal_busy
+			x_rx_cal_busy_ch0_rx_cal_busy                   : out std_logic;                                        -- rx_cal_busy
+			x_rx_cal_busy_ch1_rx_cal_busy                   : out std_logic;                                        -- rx_cal_busy
+			x_rx_cal_busy_ch2_rx_cal_busy                   : out std_logic;                                        -- rx_cal_busy
+			x_rx_cal_busy_ch3_rx_cal_busy                   : out std_logic;                                        -- rx_cal_busy
+			x_rx_cdr_refclk0_clk                            : in  std_logic                     := 'X';             -- clk
+			x_tx_serial_data_ch0_tx_serial_data             : out std_logic;                                        -- tx_serial_data
+			x_tx_serial_data_ch1_tx_serial_data             : out std_logic;                                        -- tx_serial_data
+			x_tx_serial_data_ch2_tx_serial_data             : out std_logic;                                        -- tx_serial_data
+			x_tx_serial_data_ch3_tx_serial_data             : out std_logic;                                        -- tx_serial_data
+			x_rx_serial_data_ch0_rx_serial_data             : in  std_logic                     := 'X';             -- rx_serial_data
+			x_rx_serial_data_ch1_rx_serial_data             : in  std_logic                     := 'X';             -- rx_serial_data
+			x_rx_serial_data_ch2_rx_serial_data             : in  std_logic                     := 'X';             -- rx_serial_data
+			x_rx_serial_data_ch3_rx_serial_data             : in  std_logic                     := 'X';             -- rx_serial_data
+			x_rx_seriallpbken_ch0_rx_seriallpbken           : in  std_logic                     := 'X';             -- rx_seriallpbken
+			x_rx_seriallpbken_ch1_rx_seriallpbken           : in  std_logic                     := 'X';             -- rx_seriallpbken
+			x_rx_seriallpbken_ch2_rx_seriallpbken           : in  std_logic                     := 'X';             -- rx_seriallpbken
+			x_rx_seriallpbken_ch3_rx_seriallpbken           : in  std_logic                     := 'X';             -- rx_seriallpbken
+			x_rx_is_lockedtoref_ch0_rx_is_lockedtoref       : out std_logic;                                        -- rx_is_lockedtoref
+			x_rx_is_lockedtoref_ch1_rx_is_lockedtoref       : out std_logic;                                        -- rx_is_lockedtoref
+			x_rx_is_lockedtoref_ch2_rx_is_lockedtoref       : out std_logic;                                        -- rx_is_lockedtoref
+			x_rx_is_lockedtoref_ch3_rx_is_lockedtoref       : out std_logic;                                        -- rx_is_lockedtoref
+			x_rx_is_lockedtodata_ch0_rx_is_lockedtodata     : out std_logic;                                        -- rx_is_lockedtodata
+			x_rx_is_lockedtodata_ch1_rx_is_lockedtodata     : out std_logic;                                        -- rx_is_lockedtodata
+			x_rx_is_lockedtodata_ch2_rx_is_lockedtodata     : out std_logic;                                        -- rx_is_lockedtodata
+			x_rx_is_lockedtodata_ch3_rx_is_lockedtodata     : out std_logic;                                        -- rx_is_lockedtodata
+			x_tx_coreclkin_ch0_clk                          : in  std_logic                     := 'X';             -- clk
+			x_tx_coreclkin_ch1_clk                          : in  std_logic                     := 'X';             -- clk
+			x_tx_coreclkin_ch2_clk                          : in  std_logic                     := 'X';             -- clk
+			x_tx_coreclkin_ch3_clk                          : in  std_logic                     := 'X';             -- clk
+			x_rx_coreclkin_ch0_clk                          : in  std_logic                     := 'X';             -- clk
+			x_rx_coreclkin_ch1_clk                          : in  std_logic                     := 'X';             -- clk
+			x_rx_coreclkin_ch2_clk                          : in  std_logic                     := 'X';             -- clk
+			x_rx_coreclkin_ch3_clk                          : in  std_logic                     := 'X';             -- clk
+			x_tx_clkout_ch0_clk                             : out std_logic;                                        -- clk
+			x_tx_clkout_ch1_clk                             : out std_logic;                                        -- clk
+			x_tx_clkout_ch2_clk                             : out std_logic;                                        -- clk
+			x_tx_clkout_ch3_clk                             : out std_logic;                                        -- clk
+			x_rx_clkout_ch0_clk                             : out std_logic;                                        -- clk
+			x_rx_clkout_ch1_clk                             : out std_logic;                                        -- clk
+			x_rx_clkout_ch2_clk                             : out std_logic;                                        -- clk
+			x_rx_clkout_ch3_clk                             : out std_logic;                                        -- clk
+			x_tx_parallel_data_ch0_tx_parallel_data         : in  std_logic_vector(79 downto 0) := (others => 'X'); -- tx_parallel_data
+			x_tx_parallel_data_ch1_tx_parallel_data         : in  std_logic_vector(79 downto 0) := (others => 'X'); -- tx_parallel_data
+			x_tx_parallel_data_ch2_tx_parallel_data         : in  std_logic_vector(79 downto 0) := (others => 'X'); -- tx_parallel_data
+			x_tx_parallel_data_ch3_tx_parallel_data         : in  std_logic_vector(79 downto 0) := (others => 'X'); -- tx_parallel_data
+			x_rx_parallel_data_ch0_rx_parallel_data         : out std_logic_vector(79 downto 0);                    -- rx_parallel_data
+			x_rx_parallel_data_ch1_rx_parallel_data         : out std_logic_vector(79 downto 0);                    -- rx_parallel_data
+			x_rx_parallel_data_ch2_rx_parallel_data         : out std_logic_vector(79 downto 0);                    -- rx_parallel_data
+			x_rx_parallel_data_ch3_rx_parallel_data         : out std_logic_vector(79 downto 0);                    -- rx_parallel_data
+			f_tx_analogreset_ch0_tx_analogreset             : in  std_logic                     := 'X';             -- tx_analogreset
+			f_tx_analogreset_ch1_tx_analogreset             : in  std_logic                     := 'X';             -- tx_analogreset
+			f_tx_digitalreset_ch0_tx_digitalreset           : in  std_logic                     := 'X';             -- tx_digitalreset
+			f_tx_digitalreset_ch1_tx_digitalreset           : in  std_logic                     := 'X';             -- tx_digitalreset
+			f_tx_analogreset_stat_ch0_tx_analogreset_stat   : out std_logic;                                        -- tx_analogreset_stat
+			f_tx_analogreset_stat_ch1_tx_analogreset_stat   : out std_logic;                                        -- tx_analogreset_stat
+			f_tx_digitalreset_stat_ch0_tx_digitalreset_stat : out std_logic;                                        -- tx_digitalreset_stat
+			f_tx_digitalreset_stat_ch1_tx_digitalreset_stat : out std_logic;                                        -- tx_digitalreset_stat
+			f_tx_cal_busy_ch0_tx_cal_busy                   : out std_logic;                                        -- tx_cal_busy
+			f_tx_cal_busy_ch1_tx_cal_busy                   : out std_logic;                                        -- tx_cal_busy
+			f_tx_serial_data_ch0_tx_serial_data             : out std_logic;                                        -- tx_serial_data
+			f_tx_serial_data_ch1_tx_serial_data             : out std_logic;                                        -- tx_serial_data
+			f_tx_coreclkin_ch0_clk                          : in  std_logic                     := 'X';             -- clk
+			f_tx_coreclkin_ch1_clk                          : in  std_logic                     := 'X';             -- clk
+			f_tx_clkout_ch0_clk                             : out std_logic;                                        -- clk
+			f_tx_clkout_ch1_clk                             : out std_logic;                                        -- clk
+			f_tx_parallel_data_ch0_tx_parallel_data         : in  std_logic_vector(79 downto 0) := (others => 'X'); -- tx_parallel_data
+			f_tx_parallel_data_ch1_tx_parallel_data         : in  std_logic_vector(79 downto 0) := (others => 'X')  -- tx_parallel_data
+		);
+	end component xcvr_sys;
+

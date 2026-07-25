@@ -41,3 +41,12 @@ __pycache__/
 *.legacy
 tmp/
 compile_*.log
+
+# Corundum 上游克隆 (有自己的 git, 48MB, 不纳入本仓; 用 git clone 重建)
+05_corundum/
+
+# 生成的 IP HDL 子目录 (由 .ip + qsys-generate 重建; 仓库只纳入 .ip/.tcl 定义)
+0*/ip/*/
+
+# 所有编译/生成日志
+*.log
