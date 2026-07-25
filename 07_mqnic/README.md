@@ -14,7 +14,20 @@
 - **收发器层已验证可跑**: 阶段1 的 `06_qsfp_xcvr` 就是 mqnic 的 PHY 层
   (eth_xcvr_phy_quad_wrapper),4×25.78G 已在硬件锁定。
 
+## 已组装完成（本会话追加）
+
+- **完整工程已搭好**: `qsfp_mqnic.qsf` = 器件/VID + **10 个 IP** + **118 个源文件**
+  (Corundum common/lib, 路径已解析: `lib/axis`→`lib/eth/lib/axis`,
+  `rtl/common`→`fpga/common/rtl`)。`sources_common.qsf` 是源清单片段。
+- `fpga_25g` 变体确认**无 HBM/esram/DDR 端口**(已是纯片上 RAM), 无内存移植负担。
+- 只差顶层 `rtl/fpga.v`(1667行)+ `fpga_core.v` 的 **4 QSFP→1、换 A-2020 引脚**。
+
 ## 剩余移植步骤（较大工作量，需连主机 PCIe 槽验证）
+
+**核心剩余 = fpga.v/fpga_core.v 从 4 QSFP 缩到 1(QSFP0)+ 换 A-2020 引脚**:
+fpga.v 端口 = usr_refclk0/led/i2c/pcie/qsfp0-3/qsfp_irq_n; 需删 qsfp1/2/3
+(共 ~477 处引用)、每个 QSFP 是一个 quad wrapper(删 3 个)、fpga_core IF_COUNT 2→1。
+收发器 quad wrapper 用 06_qsfp_xcvr 的已验证版(三联组时钟分配 + anlg_link=sr)。
 
 1. **改写板级顶层** `rtl/fpga.v`(源自 520N_MX, 1667 行): 去掉 HBM/多 QSFP/
    usr_refclk 等 520N_MX 专属外设, 只留 A-2020 有的: PCIe x16、QSFP0、clock_100。
