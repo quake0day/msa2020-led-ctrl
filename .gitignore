@@ -17,9 +17,9 @@ quartus.log*
 quartus.rec*
 compile_full.log
 
-# Platform Designer 生成的 HDL (由 make_qsys.tcl + qsys-generate 重建)
-0*/jtag_sys/
-0*/ip/jtag_sys/*/
+# Platform Designer 生成的顶层系统目录 (由 make_qsys.tcl 重建; 注意不匹配 ip/ 下的)
+*/jtag_sys/
+xcvr_sys/
 /qdb/
 qdb_old/
 
@@ -45,8 +45,14 @@ compile_*.log
 # Corundum 上游克隆 (有自己的 git, 48MB, 不纳入本仓; 用 git clone 重建)
 05_corundum/
 
-# 生成的 IP HDL 子目录 (由 .ip + qsys-generate 重建; 仓库只纳入 .ip/.tcl 定义)
-0*/ip/*/
+# 生成的 IP HDL (由 .ip + qsys-generate 重建); 只保留 ip/ 下一级的定义文件
+**/ip/*/**
+!**/ip/*/**/
+!**/ip/*/*.ip
+!**/ip/*/*.tcl
+!**/ip/*/*.qsf
+!**/ip/*/*.qpf
+!**/ip/*/*.qsys
 
 # 所有编译/生成日志
 *.log
