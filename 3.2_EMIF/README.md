@@ -1,7 +1,23 @@
-# 实验 2: DDR4 EMIF — 电脑直接读写板卡 8GB 内存
+# 实验 2 (3.2): DDR4 EMIF — 电脑直接读写板卡内存
 
 > 在实验 1 基础上加入 EMIF DDR4 (RDIMM 1Rx8)、板级 I2C (SPD 读取)
 > 与校准调试通道。固件同时保留全部 LED 控制功能。
+
+## ★ 双通道 (2026-07-26, 硬件验证通过) ★
+
+**DIMM0 + DIMM1 双通道**已跑通:两条 8GB 1Rx8 都校准成功、电脑读写各 16/16 字通过。
+
+- **A-2020 有 4 个独立 DDR4 通道**(各是 FPGA 独立 EMIF):
+  DIMM0=CH0=`ddr4_mem[2]`(CK AP10)、**DIMM1=CH1=`ddr4_mem[3]`(CK L6, refclk K8)**、
+  DIMM2=CH2、DIMM3=CH3。DIMM0/1 是版图"3"区 Lower/Upper 一对。
+- **组双通道**:DIMM0 现有那条 + **DIMM1** 插一条同规格 1Rx8。
+- 工程:`make_qsys.tcl` 里 `foreach emif {emif0 emif1}` 双 EMIF;CH1 数据映射
+  到 `0x4_0000_0000`(8GB);`gen_ddr_pins.py <PINDEF> 0,1` 生成两通道引脚。
+- **坑**:两个 EMIF 同 I/O 列只能有一个 cal_debug 调试工具包 → CH1 关 cal_debug
+  (校准成功/失败仍由 status 上报);qsys-script 会把组件转 generic 且加 `_0` 后缀,
+  qsf 需用 `QSYS_FILE + IP_FILE ip/jtag_sys/*.ip`(不是 QIP)、去掉 `_0`、
+  emif1.ip 剥掉 cal_debug 端口。详见顶层 memory / 提交记录。
+- 验证:`python dual_ch_test.py`(读两通道校准 + 各写16字读回比对)。
 
 电脑经板载 USB-Blaster (FT232H) → JTAG → **ISSP (In-System Sources &
 Probes)** 通道读写 FPGA，用原生 GUI 程序点按钮切换 LED 灯效。

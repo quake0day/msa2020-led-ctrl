@@ -48,7 +48,8 @@ set_instance_parameter_value i2c FIFO_DEPTH {8}
 # ---- EMIF DDR4 单通道: HMA81GR7CJR8N-XN (8GB 1Rx8 PC4-3200AA RDIMM) ----
 # 按建议: PAR/ALERT 启用(A/C lane 放置), TCL/WTCL 不手工锁定(IP 自动推导),
 # DM on / DBI off / ECC off (对齐 Intel 官方 S10 四通道 RDIMM 参考设计)
-add_instance emif0 altera_emif_s10
+foreach emif {emif0 emif1} {
+add_instance $emif altera_emif_s10
 foreach {p v} {
     PROTOCOL_ENUM                   PROTOCOL_DDR4
     PHY_DDR4_MEM_CLK_FREQ_MHZ       1200.0
@@ -76,8 +77,12 @@ foreach {p v} {
     CTRL_DDR4_ECC_AUTO_CORRECTION_EN false
     DIAG_DDR4_EXPORT_SEQ_AVALON_SLAVE CAL_DEBUG_EXPORT_MODE_EXPORT
 } {
-    set_instance_parameter_value emif0 $p $v
+    set_instance_parameter_value $emif $p $v
 }
+}
+# 双 EMIF 同 I/O column 只能有一个调试工具包: CH1 关掉 cal_debug
+# (CH1 校准成功/失败仍由 status 接口 cal_ok1/cal_fail1 上报)
+set_instance_parameter_value emif1 DIAG_DDR4_EXPORT_SEQ_AVALON_SLAVE CAL_DEBUG_EXPORT_MODE_DISABLED
 
 # ---- 时钟/复位连接 ----
 foreach inst {jtag_master mm_bridge rst_br} {
@@ -97,6 +102,9 @@ add_connection mm_bridge.m0 i2c.csr
 set_connection_parameter_value mm_bridge.m0/i2c.csr baseAddress {0x200000000}
 add_connection mm_bridge.m0 emif0.cal_debug
 set_connection_parameter_value mm_bridge.m0/emif0.cal_debug baseAddress {0x280000000}
+# CH1 (DIMM1) 数据 @0x4_0000_0000 (8GB); cal_debug 已关(同列只允许一个调试工具包)
+add_connection mm_bridge.m0 emif1.ctrl_amm_0
+set_connection_parameter_value mm_bridge.m0/emif1.ctrl_amm_0 baseAddress {0x400000000}
 
 # ---- 导出 ----
 add_interface clk clock sink
@@ -136,5 +144,17 @@ add_interface ddr0_status conduit end
 set_interface_property ddr0_status EXPORT_OF emif0.status
 add_interface ddr0_usrclk clock source
 set_interface_property ddr0_usrclk EXPORT_OF emif0.emif_usr_clk
+
+# ---- EMIF CH1 (DIMM1) 导出 ----
+add_interface ddr1_ref_clk clock sink
+set_interface_property ddr1_ref_clk EXPORT_OF emif1.pll_ref_clk
+add_interface ddr1_oct conduit end
+set_interface_property ddr1_oct EXPORT_OF emif1.oct
+add_interface ddr1 conduit end
+set_interface_property ddr1 EXPORT_OF emif1.mem
+add_interface ddr1_status conduit end
+set_interface_property ddr1_status EXPORT_OF emif1.status
+add_interface ddr1_usrclk clock source
+set_interface_property ddr1_usrclk EXPORT_OF emif1.emif_usr_clk
 
 save_system {jtag_sys.qsys}

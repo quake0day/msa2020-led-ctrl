@@ -19,7 +19,19 @@ module led_ctrl (
     input  wire        ddr4_0_alert_n,
     inout  wire [63:0] ddr4_0_dq,
     inout  wire [7:0]  ddr4_0_dqs, ddr4_0_dqs_n,
-    inout  wire [7:0]  ddr4_0_dbi_n
+    inout  wire [7:0]  ddr4_0_dbi_n,
+    // ---- CH1 (DIMM1) 双通道 ----
+    input  wire        ddr4_1_ref_clk, ddr4_1_rzqin,
+    output wire [16:0] ddr4_1_a,
+    output wire        ddr4_1_act_n,
+    output wire [1:0]  ddr4_1_ba, ddr4_1_bg,
+    output wire        ddr4_1_ck, ddr4_1_ck_n, ddr4_1_cke, ddr4_1_cs_n,
+    output wire        ddr4_1_odt, ddr4_1_reset_n,
+    output wire        ddr4_1_par,
+    input  wire        ddr4_1_alert_n,
+    inout  wire [63:0] ddr4_1_dq,
+    inout  wire [7:0]  ddr4_1_dqs, ddr4_1_dqs_n,
+    inout  wire [7:0]  ddr4_1_dbi_n
 );
 
 wire [31:0] av_address;
@@ -31,6 +43,8 @@ wire [3:0]  av_byteenable;
 wire ninit_done;
 wire cal_ok0, cal_fail0;
 wire usr_clk0;
+wire cal_ok1, cal_fail1;
+wire usr_clk1;
 wire [15:0] issp_source;
 wire [31:0] issp_probe;
 wire [95:0] mem_source;
@@ -90,6 +104,28 @@ jtag_sys u_jtag (
     .ddr0_status_local_cal_success (cal_ok0),
     .ddr0_status_local_cal_fail    (cal_fail0),
     .ddr0_usrclk_clk       (usr_clk0),
+    // ---- CH1 (DIMM1) ----
+    .ddr1_ref_clk_clk      (ddr4_1_ref_clk),
+    .ddr1_oct_oct_rzqin    (ddr4_1_rzqin),
+    .ddr1_mem_ck           (ddr4_1_ck),
+    .ddr1_mem_ck_n         (ddr4_1_ck_n),
+    .ddr1_mem_a            (ddr4_1_a),
+    .ddr1_mem_act_n        (ddr4_1_act_n),
+    .ddr1_mem_ba           (ddr4_1_ba),
+    .ddr1_mem_bg           (ddr4_1_bg),
+    .ddr1_mem_cke          (ddr4_1_cke),
+    .ddr1_mem_cs_n         (ddr4_1_cs_n),
+    .ddr1_mem_odt          (ddr4_1_odt),
+    .ddr1_mem_reset_n      (ddr4_1_reset_n),
+    .ddr1_mem_par          (ddr4_1_par),
+    .ddr1_mem_alert_n      (ddr4_1_alert_n),
+    .ddr1_mem_dqs          (ddr4_1_dqs),
+    .ddr1_mem_dqs_n        (ddr4_1_dqs_n),
+    .ddr1_mem_dq           (ddr4_1_dq),
+    .ddr1_mem_dbi_n        (ddr4_1_dbi_n),
+    .ddr1_status_local_cal_success (cal_ok1),
+    .ddr1_status_local_cal_fail    (cal_fail1),
+    .ddr1_usrclk_clk       (usr_clk1),
     .master_address        (av_address),
     .master_read           (av_read),
     .master_write          (av_write),
@@ -136,8 +172,8 @@ issp_mem_bridge u_membr (
     .src              (mem_source),
     .prb              (mem_probe),
     .heartbeat        (issp_probe[19:16]),
-    .cal_ok           ({3'b000, cal_ok0}),
-    .cal_fail         ({3'b000, cal_fail0}),
+    .cal_ok           ({2'b00, cal_ok1, cal_ok0}),
+    .cal_fail         ({2'b00, cal_fail1, cal_fail0}),
     .pwr              (3'b000),
     .usr_alive        ({12'd0, ucnt}),
     .ref_alive        ({12'd0, rcnt}),

@@ -403,17 +403,24 @@ class App:
 
     def mem_selftest(self):
         def fn():
-            base, n, bad = 0x100, 16, 0
-            for i in range(n):
-                self.sc.mem_write(base + i * 4, (0xA5000000 + i * 0x11111) & 0xFFFFFFFF)
-            for i in range(n):
-                want = (0xA5000000 + i * 0x11111) & 0xFFFFFFFF
-                got = self.sc.mem_read(base + i * 4)
-                if got != want:
-                    bad += 1
-                    self.log("自检不符 [0x%X]: 读 %08X 期望 %08X" % (base + i * 4, got, want))
-            self.log("自检完成: %d/%d 字通过" % (n - bad, n))
-        self._do(fn, "自检启动 (写16字→读回比对)")
+            # 双通道: DIMM0(CH0) @0x100, DIMM1(CH1) @0x4_0000_0100
+            chans = [("DIMM0 CH0", 0x100), ("DIMM1 CH1", 0x400000100)]
+            n = 16
+            for name, base in chans:
+                bad = 0
+                for i in range(n):
+                    self.sc.mem_write(base + i * 4,
+                                      (0xA5000000 + i * 0x11111) & 0xFFFFFFFF)
+                for i in range(n):
+                    want = (0xA5000000 + i * 0x11111) & 0xFFFFFFFF
+                    got = self.sc.mem_read(base + i * 4)
+                    if got != want:
+                        bad += 1
+                        self.log("%s 不符 [0x%X]: 读 %08X 期望 %08X"
+                                 % (name, base + i * 4, got, want))
+                self.log("%s 自检: %d/%d 字通过%s"
+                         % (name, n - bad, n, " ✓" if bad == 0 else " ✗"))
+        self._do(fn, "双通道自检启动 (各写16字→读回比对)")
 
     # ---------------- 状态轮询 ----------------
     def poll(self):

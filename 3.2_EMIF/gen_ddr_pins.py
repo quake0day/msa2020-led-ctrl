@@ -74,7 +74,7 @@ def extract(xlsx, slot):
 
 def main():
     xlsx, arg = sys.argv[1], sys.argv[2]
-    slots = [0, 1, 2, 3] if arg == "all" else [int(arg)]
+    slots = [0, 1, 2, 3] if arg == "all" else [int(x) for x in arg.split(",")]
     lines = []
     for s in slots:
         lines += ["# -- 丝印槽位 DIMM%d --" % s] + extract(xlsx, s)
