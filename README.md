@@ -9,7 +9,7 @@ Stratix 10 `1SG280LN2F43E2VG`）的开源实验工程与上位机工具。
 |---|------|------|------|
 | **1** | [Blink](1_Blink/) | LED 灯效引擎 + ISSP 上位机通道 + 电脑 GUI 点按钮控制/实时回显 | ✅ **烧录即用**，板侧 LED 计数器规律闪烁 |
 | **2** | [EMIF](2_EMIF/) | DDR4 内存：EMIF 校准 + 电脑直接读写 8GB RDIMM，**双通道**(DIMM0+DIMM1) | ✅ **硬件验证**：双通道均校准成功、读写各 16/16 字通过 |
-| **3** | [PCIE_DMA](3_PCIE_DMA/) | 独立的 PCIe DMA 最小实验（不含 Corundum 全套） | 🚧 开发中（占位） |
+| **3** | [PCIE_DMA](3_PCIE_DMA/) | 独立 PCIe 最小实验：主机经 BAR0 直接读写 FPGA 256KB 片内 RAM（Gen3x8 Avalon-MM） | 🧩 **设计完成**（qsys+顶层+约束齐全）；叶子 IP HDL 需 Platform Designer GUI 生成后编译 |
 | **4** | [100GBase_loop](4_100GBase_loop/) | QSFP0 收发器点亮 + retimer + 100G MAC，环回验证 | ✅ 收发器 4×25.78G 环回 / retimer 均**硬件验证**；⛔ bonded 100G MAC 板级受限 |
 | **5** | [Corundum_fork_on_MSA2020](5_Corundum_fork_on_MSA2020/) | Corundum mqnic NIC 移植（PCIe DMA + 100G） | 🚧 **已编译出 .sof**；驱动仅 Linux；待主机 PCIe 槽验证 |
 
@@ -54,6 +54,6 @@ Windows + Python 3 + Quartus Prime Pro 23.3（syscon 作 JTAG 后端）。
 - [x] 4 QSFP0 4×25.78G 收发器环回（硬件验证）+ retimer（硬件验证）
 - [x] 5 Corundum mqnic 移植编译出 .sof
 - [ ] 2 DDR4 四通道扩展（DIMM2/DIMM3，同法可扩）
-- [ ] 3 独立 PCIe DMA 最小实验
+- [x] 3 独立 PCIe 最小实验设计完成（Gen3x8 Avalon-MM，BAR0→256KB 片内 RAM）；待 GUI 生成叶子 IP 后编译
 - [ ] 4 bonded 100G MAC（板级受限，探索中）
 - [ ] 5 mqnic 主机 PCIe 槽 + Linux 驱动验证
