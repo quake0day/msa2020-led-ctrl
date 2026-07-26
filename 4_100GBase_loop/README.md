@@ -1,4 +1,4 @@
-# 3.4 100GBase_loop
+# 4 100GBase_loop
 
 **状态：🚧 开发中** —— 收发器环回、retimer 已**硬件验证**；bonded 100G MAC 板级受限。
 
@@ -22,7 +22,7 @@ QSFP0 四条 lane 接到**非连续物理通道 0,1,3,4（跳过 ch2）** ——
   的 ch0,1,3,4 绑成一组，未用的 ch2/ch5 必须 HIGH_PERF 才匹配，而板子接线
   决定了这做不到（连 Intel 自己的 example 都没有强制未用通道 power_mode 的
   assignment，因为标准板卡的 QSFP 都接连续通道）。
-- **"100G 级"的天然路线 = 4×25G 聚合**（见 3.5 Corundum mqnic）。
+- **"100G 级"的天然路线 = 4×25G 聚合**（见 5 Corundum mqnic）。
 
 ## 收发器正解拓扑（xcvr/）
 

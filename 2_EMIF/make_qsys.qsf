@@ -1,0 +1,17 @@
+set_global_assignment -name TOP_LEVEL_ENTITY make_qsys
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 23.3.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:51:59  JULY 26, 2026"
+set_global_assignment -name LAST_QUARTUS_VERSION "23.3.0 Pro Edition"
+set_global_assignment -name FAMILY "Stratix 10"
+set_global_assignment -name DEVICE 1SG280LN2F43E2VG
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_clk_br.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_rst_br.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_jtag_master.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_issp.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_issp2.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_mm_bridge.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_rst_release.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_i2c.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_emif0.ip
+set_global_assignment -name IP_FILE ip/jtag_sys/jtag_sys_emif1.ip
+set_global_assignment -name QSYS_FILE jtag_sys.qsys
