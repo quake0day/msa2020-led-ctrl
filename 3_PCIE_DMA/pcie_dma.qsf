@@ -18,8 +18,9 @@ set_global_assignment -name USE_CONF_DONE SDM_IO16
 set_global_assignment -name USE_INIT_DONE SDM_IO0
 set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION ON
 
-# ---- 设计文件 ----
-set_global_assignment -name QSYS_FILE pcie_dma_sys.qsys
+# ---- 设计文件 (独立 IP + Verilog 手连, 参 5 fpga.v 模式) ----
+set_global_assignment -name IP_FILE ip/pcie.ip
+set_global_assignment -name IP_FILE ip/reset_release.ip
 set_global_assignment -name VERILOG_FILE rtl/pcie_dma.v
 set_global_assignment -name SDC_FILE pcie_dma.sdc
 
@@ -49,3 +50,4 @@ set_instance_assignment -name IO_STANDARD "3.0-V LVTTL" -to pcie_perstn
 set_location_assignment PIN_V6 -to led_user_grn[0]
 set_location_assignment PIN_V7 -to led_user_grn[1]
 set_instance_assignment -name IO_STANDARD "1.8 V" -to led_user_grn[*]
+set_global_assignment -name BOARD default

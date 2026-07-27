@@ -56,3 +56,8 @@ compile_*.log
 
 # 所有编译/生成日志
 *.log
+
+# Platform Designer GUI 状态 + 无头弃用的 qsys 顶层系统
+.qsys_edit/
+pcie_dma_sys*.qsys
+make_qsys.tcl

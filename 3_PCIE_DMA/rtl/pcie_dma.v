@@ -1,51 +1,335 @@
 // =====================================================================
-// MSA-2020 独立 PCIe 最小实验 (Gen3x8, Avalon-MM)
-//   主机把 FPGA 的 256KB 片内 RAM 映射进 BAR0, 经 PCIe 直接读写 ——
-//   FPGA <-> 主机的 PCIe 数据搬运基座 (host-driven / PIO over PCIe)。
-//   数据通路: 主机 mmap(BAR0) -> PCIe 硬核 rxm_bar0 -> 片内 RAM。
-//
-//   LED (板载绿灯, 低有效):
-//     grn[0] = pcie_perstn (亮 = 主机已释放 PERST#, 槽位上电/主机在)
-//     grn[1] = coreclk 心跳 (闪 = PCIe 硬核 coreclkout_hip 在跑, PLL 已锁)
+// MSA-2020 独立 PCIe 最小实验 (Gen3x8, Avalon-MM) —— 由 gen_top.py 生成
+//   主机 mmap(BAR0) -> PCIe 硬核 rxm_bar0(32b) -> 256KB 片内 RAM。
+//   PCIe 硬核用独立 IP ip/pcie.ip; pipe/sim 端口按硬件模式全部置 0(参 5 fpga.v)。
+//   LED(绿, 低有效): grn[0]=pcie_perstn(主机在); grn[1]=coreclk 心跳(硬核在跑)
 // =====================================================================
 `default_nettype none
 module pcie_dma (
-    input  wire        pcie_refclk,   // 100MHz HCSL 参考时钟 (AM34)
-    input  wire        pcie_perstn,   // PCIe PERST# (AC26)
-    input  wire [7:0]  pcie_rx,       // PCIe RX lane 0..7
-    output wire [7:0]  pcie_tx,       // PCIe TX lane 0..7
-    output wire [1:0]  led_user_grn   // 状态灯 (低有效)
+    input  wire        pcie_refclk,   // 100MHz HCSL (AM34)
+    input  wire        pcie_perstn,   // PERST# (AC26)
+    input  wire [7:0]  pcie_rx,
+    output wire [7:0]  pcie_tx,
+    output wire [1:0]  led_user_grn
 );
-    wire coreclk;   // 硬核 coreclkout_hip (Gen3x8 = 250MHz)
+    wire        coreclk;              // coreclkout_hip (Gen3x8 = 250MHz)
+    wire        app_nreset;           // 应用层复位状态
+    wire        ninit_done;
 
-    // ---- coreclk 心跳分频 (自由运行, 证明硬核在时钟) ----
+    // ---- rxm_bar0 (32-bit Avalon-MM 主) ----
+    wire [63:0] rxm_address;
+    wire [3:0]  rxm_byteenable;
+    wire        rxm_read, rxm_write;
+    wire [31:0] rxm_writedata;
+    reg  [31:0] rxm_readdata;
+    reg         rxm_readdatavalid;
+
+    // ---- 256KB 片内 RAM (64K x 32-bit), BAR0 窗口, 1 拍读延迟 ----
+    reg [31:0] mem [0:65535];
+    wire [15:0] word_addr = rxm_address[17:2];
+    always @(posedge coreclk) begin
+        if (rxm_write) begin
+            if (rxm_byteenable[0]) mem[word_addr][7:0]   <= rxm_writedata[7:0];
+            if (rxm_byteenable[1]) mem[word_addr][15:8]  <= rxm_writedata[15:8];
+            if (rxm_byteenable[2]) mem[word_addr][23:16] <= rxm_writedata[23:16];
+            if (rxm_byteenable[3]) mem[word_addr][31:24] <= rxm_writedata[31:24];
+        end
+        rxm_readdata      <= mem[word_addr];
+        rxm_readdatavalid <= rxm_read;
+    end
+
+    // ---- 状态 LED ----
     reg [26:0] hb = 27'd0;
     always @(posedge coreclk) hb <= hb + 27'd1;
-
-    assign led_user_grn[0] = ~pcie_perstn;   // 亮 = 已出 PERST#
+    assign led_user_grn[0] = ~pcie_perstn;   // 亮 = 主机已释放 PERST#
     assign led_user_grn[1] = ~hb[26];        // 闪 = coreclk 心跳
 
-    pcie_dma_sys u_sys (
-        .refclk_clk         (pcie_refclk),
-        .npor_npor          (1'b1),
-        .npor_pin_perst     (pcie_perstn),
-        .coreclk_clk        (coreclk),
-        .hip_serial_rx_in0  (pcie_rx[0]),
-        .hip_serial_rx_in1  (pcie_rx[1]),
-        .hip_serial_rx_in2  (pcie_rx[2]),
-        .hip_serial_rx_in3  (pcie_rx[3]),
-        .hip_serial_rx_in4  (pcie_rx[4]),
-        .hip_serial_rx_in5  (pcie_rx[5]),
-        .hip_serial_rx_in6  (pcie_rx[6]),
-        .hip_serial_rx_in7  (pcie_rx[7]),
-        .hip_serial_tx_out0 (pcie_tx[0]),
-        .hip_serial_tx_out1 (pcie_tx[1]),
-        .hip_serial_tx_out2 (pcie_tx[2]),
-        .hip_serial_tx_out3 (pcie_tx[3]),
-        .hip_serial_tx_out4 (pcie_tx[4]),
-        .hip_serial_tx_out5 (pcie_tx[5]),
-        .hip_serial_tx_out6 (pcie_tx[6]),
-        .hip_serial_tx_out7 (pcie_tx[7])
+    // ---- S10 复位释放 -> ninit_done ----
+    reset_release reset_release_inst (
+        .ninit_done (ninit_done)
+    );
+
+    // ---- PCIe 硬核 (Avalon-MM 桥) ----
+    pcie pcie_hip_inst (
+        .refclk                     (pcie_refclk),
+        .coreclkout_hip             (coreclk),
+        .npor                       (1'b1),
+        .pin_perst                  (pcie_perstn),
+        .app_nreset_status          (app_nreset),
+        .ninit_done                 (ninit_done),
+        .rxm_bar0_address_o         (rxm_address),
+        .rxm_bar0_byteenable_o      (rxm_byteenable),
+        .rxm_bar0_readdata_i        (rxm_readdata),
+        .rxm_bar0_writedata_o       (rxm_writedata),
+        .rxm_bar0_read_o            (rxm_read),
+        .rxm_bar0_write_o           (rxm_write),
+        .rxm_bar0_readdatavalid_i   (rxm_readdatavalid),
+        .rxm_bar0_waitrequest_i     (1'b0),
+        .rxm_irq_i                  (16'd0),
+        .cra_chipselect_i           (1'b0),
+        .cra_address_i              (15'd0),
+        .cra_byteenable_i           (4'd0),
+        .cra_read_i                 (1'b0),
+        .cra_readdata_o             (),
+        .cra_write_i                (1'b0),
+        .cra_writedata_i            (32'd0),
+        .cra_waitrequest_o          (),
+        .cra_readdatavalid_o        (),
+        .cra_irq_o                  (),
+        .simu_mode_pipe             (1'b0),
+        .test_in                    (67'd0),
+        .sim_pipe_pclk_in           (1'b0),
+        .sim_pipe_rate              (),
+        .sim_ltssmstate             (),
+        .txdata0                    (),
+        .txdata1                    (),
+        .txdata2                    (),
+        .txdata3                    (),
+        .txdata4                    (),
+        .txdata5                    (),
+        .txdata6                    (),
+        .txdata7                    (),
+        .txdatak0                   (),
+        .txdatak1                   (),
+        .txdatak2                   (),
+        .txdatak3                   (),
+        .txdatak4                   (),
+        .txdatak5                   (),
+        .txdatak6                   (),
+        .txdatak7                   (),
+        .txcompl0                   (),
+        .txcompl1                   (),
+        .txcompl2                   (),
+        .txcompl3                   (),
+        .txcompl4                   (),
+        .txcompl5                   (),
+        .txcompl6                   (),
+        .txcompl7                   (),
+        .txelecidle0                (),
+        .txelecidle1                (),
+        .txelecidle2                (),
+        .txelecidle3                (),
+        .txelecidle4                (),
+        .txelecidle5                (),
+        .txelecidle6                (),
+        .txelecidle7                (),
+        .txdetectrx0                (),
+        .txdetectrx1                (),
+        .txdetectrx2                (),
+        .txdetectrx3                (),
+        .txdetectrx4                (),
+        .txdetectrx5                (),
+        .txdetectrx6                (),
+        .txdetectrx7                (),
+        .powerdown0                 (),
+        .powerdown1                 (),
+        .powerdown2                 (),
+        .powerdown3                 (),
+        .powerdown4                 (),
+        .powerdown5                 (),
+        .powerdown6                 (),
+        .powerdown7                 (),
+        .txmargin0                  (),
+        .txmargin1                  (),
+        .txmargin2                  (),
+        .txmargin3                  (),
+        .txmargin4                  (),
+        .txmargin5                  (),
+        .txmargin6                  (),
+        .txmargin7                  (),
+        .txdeemph0                  (),
+        .txdeemph1                  (),
+        .txdeemph2                  (),
+        .txdeemph3                  (),
+        .txdeemph4                  (),
+        .txdeemph5                  (),
+        .txdeemph6                  (),
+        .txdeemph7                  (),
+        .txswing0                   (),
+        .txswing1                   (),
+        .txswing2                   (),
+        .txswing3                   (),
+        .txswing4                   (),
+        .txswing5                   (),
+        .txswing6                   (),
+        .txswing7                   (),
+        .txsynchd0                  (),
+        .txsynchd1                  (),
+        .txsynchd2                  (),
+        .txsynchd3                  (),
+        .txsynchd4                  (),
+        .txsynchd5                  (),
+        .txsynchd6                  (),
+        .txsynchd7                  (),
+        .txblkst0                   (),
+        .txblkst1                   (),
+        .txblkst2                   (),
+        .txblkst3                   (),
+        .txblkst4                   (),
+        .txblkst5                   (),
+        .txblkst6                   (),
+        .txblkst7                   (),
+        .txdataskip0                (),
+        .txdataskip1                (),
+        .txdataskip2                (),
+        .txdataskip3                (),
+        .txdataskip4                (),
+        .txdataskip5                (),
+        .txdataskip6                (),
+        .txdataskip7                (),
+        .rate0                      (),
+        .rate1                      (),
+        .rate2                      (),
+        .rate3                      (),
+        .rate4                      (),
+        .rate5                      (),
+        .rate6                      (),
+        .rate7                      (),
+        .rxpolarity0                (),
+        .rxpolarity1                (),
+        .rxpolarity2                (),
+        .rxpolarity3                (),
+        .rxpolarity4                (),
+        .rxpolarity5                (),
+        .rxpolarity6                (),
+        .rxpolarity7                (),
+        .currentrxpreset0           (),
+        .currentrxpreset1           (),
+        .currentrxpreset2           (),
+        .currentrxpreset3           (),
+        .currentrxpreset4           (),
+        .currentrxpreset5           (),
+        .currentrxpreset6           (),
+        .currentrxpreset7           (),
+        .currentcoeff0              (),
+        .currentcoeff1              (),
+        .currentcoeff2              (),
+        .currentcoeff3              (),
+        .currentcoeff4              (),
+        .currentcoeff5              (),
+        .currentcoeff6              (),
+        .currentcoeff7              (),
+        .rxeqeval0                  (),
+        .rxeqeval1                  (),
+        .rxeqeval2                  (),
+        .rxeqeval3                  (),
+        .rxeqeval4                  (),
+        .rxeqeval5                  (),
+        .rxeqeval6                  (),
+        .rxeqeval7                  (),
+        .rxeqinprogress0            (),
+        .rxeqinprogress1            (),
+        .rxeqinprogress2            (),
+        .rxeqinprogress3            (),
+        .rxeqinprogress4            (),
+        .rxeqinprogress5            (),
+        .rxeqinprogress6            (),
+        .rxeqinprogress7            (),
+        .invalidreq0                (),
+        .invalidreq1                (),
+        .invalidreq2                (),
+        .invalidreq3                (),
+        .invalidreq4                (),
+        .invalidreq5                (),
+        .invalidreq6                (),
+        .invalidreq7                (),
+        .rxdata0                    (32'd0),
+        .rxdata1                    (32'd0),
+        .rxdata2                    (32'd0),
+        .rxdata3                    (32'd0),
+        .rxdata4                    (32'd0),
+        .rxdata5                    (32'd0),
+        .rxdata6                    (32'd0),
+        .rxdata7                    (32'd0),
+        .rxdatak0                   (4'd0),
+        .rxdatak1                   (4'd0),
+        .rxdatak2                   (4'd0),
+        .rxdatak3                   (4'd0),
+        .rxdatak4                   (4'd0),
+        .rxdatak5                   (4'd0),
+        .rxdatak6                   (4'd0),
+        .rxdatak7                   (4'd0),
+        .phystatus0                 (1'b0),
+        .phystatus1                 (1'b0),
+        .phystatus2                 (1'b0),
+        .phystatus3                 (1'b0),
+        .phystatus4                 (1'b0),
+        .phystatus5                 (1'b0),
+        .phystatus6                 (1'b0),
+        .phystatus7                 (1'b0),
+        .rxvalid0                   (1'b0),
+        .rxvalid1                   (1'b0),
+        .rxvalid2                   (1'b0),
+        .rxvalid3                   (1'b0),
+        .rxvalid4                   (1'b0),
+        .rxvalid5                   (1'b0),
+        .rxvalid6                   (1'b0),
+        .rxvalid7                   (1'b0),
+        .rxstatus0                  (3'd0),
+        .rxstatus1                  (3'd0),
+        .rxstatus2                  (3'd0),
+        .rxstatus3                  (3'd0),
+        .rxstatus4                  (3'd0),
+        .rxstatus5                  (3'd0),
+        .rxstatus6                  (3'd0),
+        .rxstatus7                  (3'd0),
+        .rxelecidle0                (1'b0),
+        .rxelecidle1                (1'b0),
+        .rxelecidle2                (1'b0),
+        .rxelecidle3                (1'b0),
+        .rxelecidle4                (1'b0),
+        .rxelecidle5                (1'b0),
+        .rxelecidle6                (1'b0),
+        .rxelecidle7                (1'b0),
+        .rxsynchd0                  (2'd0),
+        .rxsynchd1                  (2'd0),
+        .rxsynchd2                  (2'd0),
+        .rxsynchd3                  (2'd0),
+        .rxsynchd4                  (2'd0),
+        .rxsynchd5                  (2'd0),
+        .rxsynchd6                  (2'd0),
+        .rxsynchd7                  (2'd0),
+        .rxblkst0                   (1'b0),
+        .rxblkst1                   (1'b0),
+        .rxblkst2                   (1'b0),
+        .rxblkst3                   (1'b0),
+        .rxblkst4                   (1'b0),
+        .rxblkst5                   (1'b0),
+        .rxblkst6                   (1'b0),
+        .rxblkst7                   (1'b0),
+        .rxdataskip0                (1'b0),
+        .rxdataskip1                (1'b0),
+        .rxdataskip2                (1'b0),
+        .rxdataskip3                (1'b0),
+        .rxdataskip4                (1'b0),
+        .rxdataskip5                (1'b0),
+        .rxdataskip6                (1'b0),
+        .rxdataskip7                (1'b0),
+        .dirfeedback0               (6'd0),
+        .dirfeedback1               (6'd0),
+        .dirfeedback2               (6'd0),
+        .dirfeedback3               (6'd0),
+        .dirfeedback4               (6'd0),
+        .dirfeedback5               (6'd0),
+        .dirfeedback6               (6'd0),
+        .dirfeedback7               (6'd0),
+        .sim_pipe_mask_tx_pll_lock  (1'b0),
+        .rx_in0                     (pcie_rx[0]),
+        .rx_in1                     (pcie_rx[1]),
+        .rx_in2                     (pcie_rx[2]),
+        .rx_in3                     (pcie_rx[3]),
+        .rx_in4                     (pcie_rx[4]),
+        .rx_in5                     (pcie_rx[5]),
+        .rx_in6                     (pcie_rx[6]),
+        .rx_in7                     (pcie_rx[7]),
+        .tx_out0                    (pcie_tx[0]),
+        .tx_out1                    (pcie_tx[1]),
+        .tx_out2                    (pcie_tx[2]),
+        .tx_out3                    (pcie_tx[3]),
+        .tx_out4                    (pcie_tx[4]),
+        .tx_out5                    (pcie_tx[5]),
+        .tx_out6                    (pcie_tx[6]),
+        .tx_out7                    (pcie_tx[7])
     );
 endmodule
 `default_nettype wire

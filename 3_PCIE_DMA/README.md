@@ -1,6 +1,6 @@
 # 3 PCIE_DMA — 独立 PCIe 最小实验
 
-**状态：🧩 设计完成，待生成叶子 IP HDL 后编译**（详见下方"生成与编译"）
+**状态：✅ 已编译出 `.sof`（0 error，时序通过）；⏳ BAR 读写待插主机 PCIe 槽验证**
 
 独立、最小的 **PCIe 数据搬运** 实验：把 FPGA 的 **256KB 片内 RAM 映射进
 BAR0**，主机经 PCIe 直接读写 —— 即 FPGA↔主机的 PCIe 数据通道基座。
@@ -32,33 +32,38 @@ BAR0**，主机经 PCIe 直接读写 —— 即 FPGA↔主机的 PCIe 数据通�
 
 ## 文件
 
+采用与 [5](../5_Corundum_fork_on_MSA2020/) 相同的**独立 IP + Verilog 手连**模式
+（不用 Platform Designer 顶层系统——无头环境下 qsys 系统的叶子 IP 生成不稳）：
+
 | 文件 | 说明 |
 |------|------|
-| `make_qsys.tcl` | Platform Designer 系统 `pcie_dma_sys` 构建脚本：avmm 桥 + 256KB 片内 RAM + 时钟/复位桥 + 复位释放 |
-| `ip/pcie.tcl` | 单独的 avmm 桥 IP 配置（Gen3x8/BAR0/非突发 rxm/无 DMA）参考 |
-| `rtl/pcie_dma.v` | 顶层：例化 `pcie_dma_sys`，接 PCIe 串行/refclk/perst + 状态 LED |
+| `ip/pcie.ip` (+`ip/pcie.tcl`) | PCIe 硬核 avmm 桥（Gen3x8 / BAR0 256KB / 32-bit 非突发 rxm / 无 DMA / VID 0x1234 DID 0x1002）|
+| `ip/reset_release.ip` | Stratix 10 复位释放 → `ninit_done`（复用自 5）|
+| `rtl/pcie_dma.v` | 顶层：例化 `pcie` + `reset_release`，`rxm_bar0(32b)` → 推断 256KB 片内 RAM，pipe/sim 端口按硬件模式全置 0（同 5 的 `fpga.v`），serial → PCIe 引脚 + 状态 LED |
+| `gen_top.py` | 由 `ip/pcie/synth/pcie.v` 端口表自动生成 `rtl/pcie_dma.v`（改 IP 配置后重跑）|
 | `pcie_dma.qsf` / `.qpf` / `.sdc` | Quartus 工程（含板卡 VID 供电块，勿改；无 CVP_CONFDONE 便于 JTAG 烧录）|
 
 顶层状态灯（板载绿灯，低有效）：`grn[0]` = `pcie_perstn`（亮=主机已释放 PERST#）；
-`grn[1]` = `coreclk` 心跳（闪=PCIe 硬核 coreclkout_hip 在跑、PLL 已锁）。
+`grn[1]` = `coreclk` 心跳（闪=PCIe 硬核 `coreclkout_hip` 在跑、PLL 已锁）。
 
-## 生成与编译
+## 编译（无头即可，已验证 0 error / 时序通过）
 
-> ⚠️ **本机无头限制**：这套无头 Quartus 环境里 `qsys-script` 存盘会把叶子组件
-> 转成 Generic Component（无 HDL），`qsys-generate`/`quartus_ipgenerate` 只能生成
-> 互连、生成不出 `pcie`/`onchip_ram`/桥 等叶子 IP 的 HDL（报 *undefined entity
-> pcie_dma_sys_pcie_N*）。项目 2/5 的叶子 `ip/*.ip` 都是**用 Platform Designer
-> GUI 生成**的。细节见 [[msa2020-quartus-toolchain]]。
+```bash
+cd 3_PCIE_DMA
+export QUARTUS_ROOTDIR="H:\fpga\quartus"          # 23.3, 有 S10 器件
+# 1) 生成 IP HDL（pcie 硬核+收发器、reset_release）
+"$QUARTUS_ROOTDIR/bin64/quartus_ipgenerate" pcie_dma --synthesis=verilog --generate_project_ip_files
+# 2) 全流程编译 -> output_files/pcie_dma.sof
+"$QUARTUS_ROOTDIR/bin64/quartus_sh" --flow compile pcie_dma
+```
 
-在**装了 GUI 的 Quartus 23.3** 里完成生成即可编译（`pcie_dma_sys.qsys` 已是
-真实组件系统，非 Generic 占位）：
+实测资源极小：3298 ALM(<1%) + 133 M20K(256KB) + 10 PLL。改 PCIe 配置就编辑
+`ip/pcie.tcl` 重新生成 `ip/pcie.ip`，再 `python gen_top.py` 重生顶层。
+从 `.sof` 用 `quartus_pfg` 生成 `.jic` 烧录（VID/供电块已按官方 blink 配好）。
 
-1. 打开 Platform Designer，`File→Open` 载入 **`pcie_dma_sys.qsys`**（含 avmm 桥 +
-   256KB 片内 RAM + 时钟/复位桥 + 复位释放，5 个真实 IP），点 **Generate HDL**
-   —— 会在 `ip/pcie_dma_sys/` 下生成各叶子 IP 的 HDL（含 PCIe 硬核 + 收发器）。
-   （想改配置就重跑 `make_qsys.tcl`：GUI Tcl Console `source make_qsys.tcl`。）
-2. `quartus_sh --flow compile pcie_dma`（或 GUI 编译）→ `output_files/pcie_dma.sof`。
-3. 从 .sof 生成 .jic 烧录（VID/供电块已按官方 blink 配好）。
+> 踩坑记录见 [[msa2020-quartus-toolchain]]：无头 `qsys-script` 存盘会把 qsys **系统**
+> 的叶子转成 Generic Component（无 HDL），所以走独立 `.ip`；`qsys-script` 偶发"挂死"
+> 其实是残留 java 进程锁——杀掉 java 重跑即可。
 
 台面（JTAG）烧录后：`grn[1]` 心跳闪 = 硬核时钟起来了。**BAR 读写必须插主机
 PCIe 槽**才能测（见下）。
