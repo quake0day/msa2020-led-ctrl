@@ -1,10 +1,14 @@
 # 阶段4 — Corundum mqnic 移植到 A-2020
 
-## ★ 状态: 已编译通过, 生成 .sof (2026-07-24) ★
+## ★ 状态: 已在真实硬件跑通 (2026-07-27) ★
 
-完整 NIC (PCIe Gen3 x16 硬核 + mqnic DMA 核 + QSFP0 4×25G 收发器) 在 A-2020
-器件上**编译通过, output_files/qsfp_mqnic.sof 已生成**。工程 qsfp_mqnic.qsf。
-> 验证需把板卡插进**主机 PCIe 槽**, 加载 mqnic 驱动枚举网卡 (JTAG 台面连接测不了)。
+完整 NIC (PCIe 硬核 + mqnic DMA 核 + QSFP0 收发器) 在 A-2020 上编译通过并
+**在 Ubuntu 主机 (kernel 7.0.0, 板卡在 PCIe 槽) 完整验证**: 枚举为
+Ethernet controller `1234:1001`, mqnic 驱动 probe 通过, 建出 `/dev/mqnic0` +
+**两个网口** `enp1s0np0/np1`, DMA 收发队列就绪、PTP 时钟在跑、4 条 lane 时钟都活。
+唯一未测=光口实际收发包(需插 QSFP 模块/环回件)。**完整验证 + kernel 7.0 驱动移植补丁
+见 [HOST_VALIDATION.md](HOST_VALIDATION.md)**, 补丁源码在 `driver_mqnic_kernel7/`,
+主机一键编译加载脚本 `host/build_load_mqnic.sh`。工程 qsfp_mqnic.qsf。
 
 **移植踩坑记录 (从 4 QSFP 缩到 1 + A-2020, ~8 轮编译)**:
 1. PCIe IP devkit: 用 `chosen_devkit_hwtcl {NONE}`(本板 1SG280LN2 只认 L-Tile

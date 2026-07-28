@@ -1,107 +1,88 @@
-# mqnic 插入主机 PCIe 槽后的验证
+# mqnic 主机验证 —— ✅ 已在真实硬件上跑通（枚举 + 驱动 + 双网口 + DMA 队列）
 
-## ⚠️ 先说两个必须知道的前提
+**状态：✅ 2026-07-27 在 Ubuntu 主机（kernel 7.0.0，板卡在 PCIe 槽）完整验证通过。**
+mqnic 内核驱动成功 probe，读通整颗 FPGA 的寄存器块树，建出 `/dev/mqnic0` + **两个网口**
+`enp1s0np0/np1`，DMA 收发队列全部就绪、PTP 硬件时钟在跑。唯一没测的是"光口收发实际
+数据包"——需要插 QSFP 模块/环回件（板上光笼当前空置，故 NO-CARRIER，属预期）。
 
-1. **现在还不能说"可以正常使用"。** mqnic 的 `.sof` **编译通过了**,但:
-   - 台面 JTAG 烧录目前卡在配置("Device is in configuration state",大型
-     PCIe 设计的配置问题,见下"烧录"一节);
-   - 从没成功枚举/跑起来过。
-   所以严格说,现在是"**编译好、待验证**"。
+- PCIe **VID 0x1234 / DID 0x1001**，class = **Ethernet controller [0200]**，Gen2 x8，
+  BAR0 = 16MB（addr_width=24）。
 
-2. **★ mqnic 没有 Windows 驱动 ★。** Corundum 的驱动是 **Linux 内核模块**
-   (`modules/mqnic/`,`.c`+Makefile),外加 Linux 用户态工具(`utils/`)。
-   **没有 `.inf`/`.sys`,Windows 上无法把它当网卡用。**
-   - Windows 主机:**只能看到 PCIe 设备被枚举**(设备管理器里一个未知设备,
-     厂商 `VEN_1234` 设备 `DEV_1001`),但**装不了驱动、当不了网卡**。
-   - 要真正当 100G 网卡用,**必须 Linux 主机**。
+## ✅ 验证结果
 
-> 本设计的 PCIe 配置空间 = **Vendor 0x1234 / Device 0x1001**(mqnic 驱动认这个 ID)。
+```
+# lspci: 01:00.0 Ethernet controller [1234:1001], Gen2(5GT/s) x8
+# 驱动 probe (dmesg):
+mqnic 0000:01:00.0: IF features: 0x00001f11, Port count: 1
+mqnic ...: TXQ count 1024 / RXQ count 256 / CQ 2048 / EQ 32, Max MTU 9214
+mqnic ...: Registered device mqnic0
+mqnic ... enp1s0np0: renamed from eth0
+mqnic ... enp1s0np1: renamed from eth1     # IF_COUNT=2 -> 两个网口
+mqnic ... enp1s0np0: mqnic_start_port on interface 0
+mqnic ... enp1s0np1: mqnic_start_port on interface 1
 
----
+# mqnic-dump -d /dev/mqnic0 (完整见 host/mqnic-dump.txt):
+FPGA ID 0x432ac0dd, Board ID 0x198a0521, IF count 2
+PHC time (ToD): 1785206218 s   period 6.206 ns     # ★ PTP 硬件时钟在跑 ★
+Core clock freq: 124.768 MHz                        # 实测核心时钟(Gen2 coreclk)
+CH0..3 clock freq: 390/331/390/336 MHz              # 4 条收发器 lane 时钟都活着(GXT 起来了)
+RXQ 0..255: base 0x00000000ffdf4000... En=1 Len=1024 Prod=1024   # ★ DMA 收队列已装好+填满 ★
+Statistics counters: Index0=8805 Index1=20147 ...   # FPGA 统计计数器经 DMA/BAR 读回, 非零
 
-## A. 烧录(前置,两条路)
+# ethtool -i enp1s0np0: driver mqnic, firmware-version 0.0.1.0, bus 0000:01:00.0
+```
 
-台面 JTAG 直烧大型 PCIe 设计现在会失败。装进主机槽后有两种烧法:
+RXQ 的 base 是**驱动分配的主机 DMA 物理地址**、已写进 FPGA 队列寄存器并把 RX 环填满
+(Prod=1024)——**证明 PCIe DMA 双向控制通路 + 收发描述符环全部就绪**。加上 PTP 时钟在走、
+4 条 lane 时钟都活、统计计数器可读，mqnic 这颗 NIC 是真的活的。
 
-1. **JTAG 在槽内烧**(板子插主机槽 + JTAG 线还接着):
-   ```
-   H:\fpga\quartus\bin64\quartus_pgm -c 1 -m jtag -o "p;output_files/qsfp_mqnic.sof"
-   ```
-   注意:主机开机后 PCIe 会枚举,烧录后主机需要**重新扫描 PCIe 或重启**才认新设备。
-   若仍报 configuration state,先让主机保持关机/复位,烧完再上电。
+## 复现步骤（Ubuntu）
 
-2. **烧进板载配置 Flash**(推荐,上电自动加载,PCIe 100ms 内就绪):
-   把 `.sof` 转成 `.pof`/`.jic`(需知道板载 flash 型号),再烧 flash:
-   ```
-   H:\fpga\quartus\bin64\quartus_pfg -c qsfp_mqnic.sof qsfp_mqnic.jic ^
-     -o device=<flash型号> -o mode=ASx4
-   ```
-   (flash 型号见 A-2020 手册;这条能绕开"配置期与主机 PCIe 抢时序"的问题。)
+### 1. 烧录（板卡在 PCIe 槽内，refclk 就绪）
+```bash
+quartus_pgm -c "Microsoft Catapult (64)" -m JTAG -o "P;output_files/qsfp_mqnic.sof"
+```
+让主机重新枚举：
+```bash
+echo 1 | sudo tee /sys/bus/pci/devices/0000:01:00.0/remove
+echo 1 | sudo tee /sys/bus/pci/rescan
+```
+> mqnic 的 16MB BAR 落在桥的**非可预取** 32-bit 内存窗口(0x84000000-0x85ffffff)，
+> 不像项目3 那样受 remove+rescan 破坏可预取窗口的影响；但若读 BAR 全 0xffffffff，
+> 参见 [../3_PCIE_DMA/HOST_VALIDATION.md](../3_PCIE_DMA/HOST_VALIDATION.md) 的桥窗口修复。
 
----
+### 2. 装工具链 + 编译驱动（见 `driver_mqnic_kernel7/` 的 kernel 7.0 移植补丁）
+```bash
+sudo apt-get update && sudo apt-get install -y build-essential   # 主机原本没有 gcc/make
+cd corundum/modules/mqnic && make        # 生成 mqnic.ko
+```
+> ⚠️ 本 fork 的驱动只带到 kernel 5.15 的兼容 guard，**在 kernel 6.16/7.0 上要打 5 处补丁**
+> (见下)。补丁后的源文件存在 `driver_mqnic_kernel7/`。
 
-## B. Windows 主机 —— 只能验证枚举(当不了网卡)
+### 3. 加载 + 验证
+```bash
+for m in ptp i2c-algo-bit i2c-mux i2c-dev; do sudo modprobe $m; done
+sudo insmod mqnic.ko
+dmesg | grep mqnic | tail -40          # 看 probe + 建网口
+ip -br link | grep enp1s0              # enp1s0np0 / enp1s0np1
+sudo ethtool -i enp1s0np0
+cd ../../utils && make mqnic-dump && sudo ./mqnic-dump -d /dev/mqnic0   # 板卡/固件/队列信息
+```
 
-板子插槽 + 烧好 + 主机重启后:
+### 4. 真正跑网络包（需要硬件）
+光笼插 QSFP28 模块或环回件后：`sudo ip addr add ... ; sudo ip link set enp1s0np0 up`，
+对端 ping。当前板上光口空置 → NO-CARRIER，属正常。
 
-1. **设备管理器**:出现一个"其他设备 / 未知设备"。右键→属性→详细信息→
-   硬件 ID,应看到 `PCI\VEN_1234&DEV_1001`。**看到 = PCIe 链路 + 枚举成功**
-   (证明 FPGA 的 PCIe 硬核跑起来了)。
-2. 命令行核对(PowerShell):
-   ```powershell
-   Get-PnpDevice -PresentOnly | Where-Object InstanceId -match "VEN_1234&DEV_1001"
-   ```
-   或看 BAR/链路:
-   ```powershell
-   Get-PnpDevice -Class System | ForEach-Object { $_.InstanceId } | Select-String "1234"
-   ```
-3. **到此为止。** Windows 没有 mqnic 驱动,黄色感叹号(无驱动)是正常的,
-   装不上、也当不了网卡。想用网卡功能 → 转 Linux 主机(下节)。
+## 🔧 kernel 6.16 / 7.0 驱动移植补丁（本 fork 原本只到 5.15）
 
----
+| 文件 | 改动 | 内核变更 |
+|------|------|----------|
+| `mqnic_main.c` | `platform_driver.remove` 回调改返回 `void`（版本 guard） | 6.11 起 `.remove` 返回 void |
+| `mqnic_dev.c` | `strlcpy` → `strscpy`（3 处） | 6.8 移除 `strlcpy` |
+| `mqnic.h` | 加兼容宏：`del_timer_sync`→`timer_delete_sync`、`from_timer`→`timer_container_of` | 6.16 改名旧 timer API |
+| `mqnic_board.c` | 加 `#include <linux/hex.h>`（>=5.18 guard） | `mac_pton()` 从 kernel.h 移到 hex.h |
+| `mqnic_ethtool.c` | `get_rxfh/set_rxfh` 改用 `ethtool_rxfh_param`；`get_ts_info` 改 `kernel_ethtool_ts_info`（均加版本 guard） | 6.8 改 rxfh 签名，6.11 改 ts_info |
 
-## C. Linux 主机 —— 真正当 100G 网卡用
-
-在装了这块板的 Linux 主机上:
-
-1. **确认枚举**:
-   ```bash
-   lspci -d 1234:1001 -vvv        # 应列出设备 + BAR + 链路速率/宽度(Gen3 x16)
-   ```
-2. **编译 + 加载驱动**(内核头文件要装好):
-   ```bash
-   cd corundum/modules/mqnic
-   make
-   sudo insmod mqnic.ko            # 或 make install; modprobe mqnic
-   dmesg | tail -30               # 看 mqnic probe 日志, 网口是否创建
-   ```
-3. **看网卡**:
-   ```bash
-   ip link                        # 出现 mqnic 的网口 (如 enp1s0 / eth?)
-   ethtool <iface>                # 看速率/链路
-   ```
-4. **用户态工具**(诊断/固件信息):
-   ```bash
-   cd corundum/utils && make
-   sudo ./mqnic-dump -d /dev/mqnic0        # 打印板卡/固件信息
-   sudo ./mqnic-fw   -d /dev/mqnic0        # 固件/flash 相关
-   ```
-5. **配 IP + 通信**:
-   ```bash
-   sudo ip addr add 192.168.1.1/24 dev <iface>
-   sudo ip link set <iface> up
-   # QSFP0 接对端(或环回模块), ping 对端
-   ```
-
-> 注:Corundum 是 25G-per-lane。QSFP0 的 4 条 lane = 最多 4 个 25G 网口
-> (聚合 100G 带宽),取决于固件里 IF_COUNT/PORT 配置(本移植 IF_COUNT=2)。
-
----
-
-## 现实建议
-
-- **想立刻验证"PCIe 枚举成功"**:Windows 主机看设备管理器出现 `VEN_1234&DEV_1001`
-  即可(这一步能证明阶段4 的 PCIe 硬核+移植是通的)。
-- **想真正跑网卡**:准备一台 **Linux 主机**,按 C 节走。
-- **烧录**:强烈建议走 **板载 flash(.jic)** 方式,避开台面 JTAG 直烧大型 PCIe
-  设计的配置时序问题。需要我帮你把 `.sof`→`.jic` 的 flash 型号/命令配好的话告诉我。
+补丁后的源文件放在 `driver_mqnic_kernel7/`（可直接覆盖到 `corundum/modules/mqnic/`），
+`utils/` 另需把 Windows 检出丢失的软链恢复：`utils/lib`→`../lib`、`utils/include`→
+`../include`、`lib/mqnic/mqnic_hw.h`/`mqnic_ioctl.h`→`../../modules/mqnic/*`。
