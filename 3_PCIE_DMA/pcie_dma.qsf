@@ -18,11 +18,25 @@ set_global_assignment -name USE_CONF_DONE SDM_IO16
 set_global_assignment -name USE_INIT_DONE SDM_IO0
 set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION ON
 
-# ---- 设计文件 (独立 IP + Verilog 手连, 参 5 fpga.v 模式) ----
+# ---- 设计文件 (hip_ast + Corundum TLP 栈 + AXI-Lite RAM, 不依赖 qsys 互连) ----
 set_global_assignment -name IP_FILE ip/pcie.ip
 set_global_assignment -name IP_FILE ip/reset_release.ip
+set_global_assignment -name IP_FILE ip/iopll_100mhz.ip
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/eth/lib/axis/rtl/sync_reset.v
 set_global_assignment -name VERILOG_FILE rtl/pcie_dma.v
 set_global_assignment -name SDC_FILE pcie_dma.sdc
+# Corundum PCIe TLP 栈 (Avalon-ST -> TLP -> AXI-Lite)
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_s10_if.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_s10_if_rx.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_s10_if_tx.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_s10_cfg.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_tlp_demux.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_tlp_fifo.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_tlp_fifo_mux.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_tlp_fifo_raw.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_tlp_fc_count.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/pcie/rtl/pcie_axil_master_minimal.v
+set_global_assignment -name VERILOG_FILE H:/led_ctrl/05_corundum/corundum/fpga/lib/axi/rtl/axil_ram.v
 
 # ---- PCIe Gen3x8 引脚 (A-2020, lane 0..7; refclk AM34 HCSL; perst AC26) ----
 set_location_assignment PIN_BB34 -to pcie_tx[0]
@@ -45,6 +59,8 @@ set_location_assignment PIN_AM34 -to pcie_refclk
 set_instance_assignment -name IO_STANDARD HCSL -to pcie_refclk
 set_location_assignment PIN_AC26 -to pcie_perstn
 set_instance_assignment -name IO_STANDARD "3.0-V LVTTL" -to pcie_perstn
+set_location_assignment PIN_AD6 -to usr_refclk0
+set_instance_assignment -name IO_STANDARD "1.8 V" -to usr_refclk0
 
 # ---- 状态 LED (绿) ----
 set_location_assignment PIN_V6 -to led_user_grn[0]
