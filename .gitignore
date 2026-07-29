@@ -61,3 +61,14 @@ compile_*.log
 .qsys_edit/
 pcie_dma_sys*.qsys
 make_qsys.tcl
+
+# 第三方 H.264 核 clone (openasic-org/xk264, 头部禁止再分发 -> 只文档不入库)
+h264_xk264/
+
+# 视频加速器编译日志/增量库
+compile_va.log
+compile_dct.log
+compile_ddr4.log
+map_va.log
+syn_h264.log
+incremental_db/
