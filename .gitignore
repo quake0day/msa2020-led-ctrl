@@ -72,3 +72,15 @@ compile_ddr4.log
 map_va.log
 syn_h264.log
 incremental_db/
+
+# H.264 调试产物 (门级仿真实验/编译日志/仿真波形与中间产物)
+10_h264_encoder/gatesim/
+*.vvp
+compile_*.log
+syn_h264.log
+10_h264_encoder/sim/*.yuv
+10_h264_encoder/sim/*.png
+10_h264_encoder/sim/hw*.264
+10_h264_encoder/sim/hw*.bin
+10_h264_encoder/sim/out_*.264
+10_h264_encoder/rtl/*_zeroinit.v

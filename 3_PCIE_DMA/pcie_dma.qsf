@@ -60,10 +60,21 @@ set_instance_assignment -name IO_STANDARD HCSL -to pcie_refclk
 set_location_assignment PIN_AC26 -to pcie_perstn
 set_instance_assignment -name IO_STANDARD "3.0-V LVTTL" -to pcie_perstn
 set_location_assignment PIN_AD6 -to usr_refclk0
-set_instance_assignment -name IO_STANDARD "1.8 V" -to usr_refclk0
+set_instance_assignment -name IO_STANDARD "1.8 V" -to usr_refclk0 -entity pcie_dma
 
 # ---- 状态 LED (绿) ----
 set_location_assignment PIN_V6 -to led_user_grn[0]
 set_location_assignment PIN_V7 -to led_user_grn[1]
 set_instance_assignment -name IO_STANDARD "1.8 V" -to led_user_grn[*]
 set_global_assignment -name BOARD default
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_issp2.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_jtag_master.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_issp.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_mm_bridge.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_rst_release.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_clk_br.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_emif0.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_i2c.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_rst_br.ip
+set_global_assignment -name IP_FILE ../9_ddr4_framebuffer/ip/jtag_sys/jtag_sys_emif1.ip
+set_global_assignment -name QSYS_FILE ../9_ddr4_framebuffer/jtag_sys.qsys

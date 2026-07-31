@@ -1,0 +1,2 @@
+QUARTUS_VERSION = "23.3"
+PROJECT_REVISION = "pcie_dma"

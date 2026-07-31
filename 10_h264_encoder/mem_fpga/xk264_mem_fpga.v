@@ -1,9 +1,9 @@
 // =====================================================================
 // xk264 存储原语的 FPGA 可综合替换库 (Intel Stratix 10 / Quartus)
-//   替换 lib/behave/mem/ 里的 ASIC 行为模型:去掉内部三态输出(FPGA 无内部三态),
-//   改成标准可推断 M20K 模板。端口/参数/模块名与原库完全一致 → 直接替换,不改原文件。
-//   (原库 cen/oen/wen 均低有效;oen 仅门控输出,FPGA 恒驱动寄存输出即可,读方本就只在读时采样。)
-//   注意: 非 ANSI 端口声明依赖默认 nettype=wire, 故本文件不设 `default_nettype none`。
+//   语义严格照搬 xk264 lib/behave/mem 的原始行为(读条件也一致),只去掉内部三态输出。
+//   ram/rf: 写=!cen&!wen, 读=!cen&wen; rf_2p A口只读=!cen; rom=!cen。
+//   ★不要把读改成无条件 — 会改变存储语义, 编码器会算错/卡死。★
+//   注意: 非 ANSI 端口声明依赖默认 nettype=wire, 本文件不设 `default_nettype none`。
 // =====================================================================
 
 // ---- 单端口 RAM ----
@@ -18,7 +18,7 @@ module ram_1p (clk, cen_i, oen_i, wen_i, addr_i, data_i, data_o);
     reg [Word_Width-1:0] data_r;
     always @(posedge clk) begin
         if (!cen_i && !wen_i) mem_array[addr_i] <= data_i;   // 写
-        if (!cen_i &&  wen_i) data_r <= mem_array[addr_i];   // 读(寄存)
+        if (!cen_i &&  wen_i) data_r <= mem_array[addr_i];   // 读 (仅非写周期)
     end
     assign data_o = data_r;
 endmodule
@@ -50,7 +50,7 @@ module ram_2p (clka, cena_i, oena_i, wena_i, addra_i, dataa_o, dataa_i,
     assign datab_o = datab_r;
 endmodule
 
-// ---- 单端口寄存器堆 (wen 低有效: 写; 否则读) ----
+// ---- 单端口寄存器堆 ----
 module rf_1p (clk, cen_i, wen_i, addr_i, data_i, data_o);
     parameter Word_Width = 32;
     parameter Addr_Width = 8;
@@ -84,7 +84,7 @@ module rf_2p (clka, cena_i, addra_i, dataa_o, clkb, cenb_i, wenb_i, addrb_i, dat
     always @(posedge clkb) if (!cenb_i && !wenb_i) mem_array[addrb_i] <= datab_i;
 endmodule
 
-// ---- 单端口 ROM (未初始化 -> 读为不定; 内容由使用处/初始化文件决定) ----
+// ---- 单端口 ROM ----
 module rom_1p (clk, cen_i, oen_i, addr_i, data_o);
     parameter Word_Width = 32;
     parameter Addr_Width = 8;
@@ -96,3 +96,5 @@ module rom_1p (clk, cen_i, oen_i, addr_i, data_o);
     always @(posedge clk) if (!cen_i) data_r <= mem_array[addr_i];
     assign data_o = data_r;
 endmodule
+
+`default_nettype wire

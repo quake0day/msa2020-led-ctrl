@@ -47,12 +47,38 @@ xk264 是 ASIC 导向,两处需 FPGA 化(**没动原 clone,改动都在派生副
   - **大分辨率**:接 DDR4(复用 `9_ddr4_framebuffer` 的 Avalon 通路)。
 - 纯 **intra 模式**(`sys_mode`)不需要参考帧 → ext_ 可最小化,是最快跑通的第一步。
 
-## 状态与剩余工作(诚实)
-- ✅ 开源核在 S10 综合通过(本目录)。✅ FPGA 存储库。✅ 移植补丁。✅ 集成架构确定。
-- ⏳ **外壳 `h264_wrap`**(控制寄存器 + 输入/输出缓冲 + ext_ 时钟 FSM)—— 控制/IO 部分直接可写;
-  ext_ 控制器要对着 `rtl/top/mem_arbiter.v` 精确对时序,是**多天级功能 bring-up**(尤其验证"输出确是合法 H.264 码流")。
-- 建议路线:**先 intra-only + 片上参考帧**做最小可跑闭环(host 喂一帧 YUV → 取回 H.264 NAL),
-  再加 inter + DDR4 参考帧扩到大分辨率。
+## ★功能外壳已实现并仿真验证★(2026-07-29)
+"喂 YUV → 取 H.264 码流"的完整链路已在 iverilog 里真正跑通并用 ffmpeg 验证正确:
+
+### 硬/软分工(关键)
+`top.v` 里 slice-header 输入 **`sh_we` 接 0** → xk264 硬件**只输出 CAVLC slice-data**,
+不产 SPS/PPS/slice-header/起始码。这是 H.264 硬件编码器的标准分工——软件补齐头部:
+- **`host/h264_pack.py`**:生成 SPS(Baseline)+PPS+slice-header,**位级拼接**硬件 slice-data,
+  加 RBSP trailing + 防竞争字节(00 00 03)+ Annex-B 起始码 → 可被 ffmpeg 解码的 `.264`。
+
+### 输入像素格式(MB-tiled,见 `cur_mb.v`)
+MB 光栅序;每 MB = 48 个 64-bit 字:32 luma(光栅 16×16,8 像素/字,首像素在高字节)
++ 16 chroma(每字 `U0 V0 U1 V1 U2 V2 U3 V3` 交织,光栅 8×8)。`host/gen_yuv.py` / `h264_encode.py` 负责排布。
+
+### `ext_` 参考帧控制器(`rtl/h264_ext_mem.v`)
+把 xk264 `tb_top.v` 里作者注释掉的时钟 FSM(446–623 行)做成可综合模块,稀疏地址
+`{ref_sel,luma/chroma,mb_y,mb_x,cnt}` 换成**紧凑地址** `mb_linear=mb_y*W+mb_x`,片上 M20K
+(512KB,支持 ≤512 MB / ~CIF)。8 模式 load/store × Y/UV × deblock/ref。
+
+### `rtl/h264_wrap.v`(PCIe-BAR 外壳)
+控制寄存器 + 输入帧 BRAM(host 写→喂 `rdata_i`)+ 码流抓取 BRAM(`winc_o`→host 读)+ 上面的 ext_ 控制器 + xk264 `top`。全在 pcie_clk 单时钟域。
+
+### ✅ 验证结果
+- 96×64 I 帧,sim 产 168B slice → 打包 194B `.264` → **ffmpeg 解码成功**;
+  重建图 vs 原输入 **Y 平面平均|误差|=0.70**(QP27 有损量化,near-lossless)。
+- `h264_wrap` 走 **AXI-Lite 仿真**(模拟 PCIe BAR)→ 输出与直连仿真**逐字节一致**。
+- `host/h264_encode.py` 的 MB-tiling 与 `gen_yuv.py` 逐字节一致(离线验证)。
+
+## 剩余工作
+- ⏳ **PCIe 工程编译**(`pcie/`,PCIe 硬核 + xk264 + 外壳)→ `.sof`(编译中)。
+- ⏳ **真机 bring-up**:烧录 → `h264_encode.py` 喂 YUV → 取 `.264` → ffmpeg 解码验证。
+- 后续:P 帧(inter)已在核里,当前外壳按 I 帧闭环;多帧 GOP 需 `frame_parity` 翻转 + 连续喂帧。
+  大分辨率(>CIF)把 `ext_` 后端从片上 M20K 换 DDR4(复用 `9_ddr4_framebuffer` 通路)。
 
 ## 授权(务必知悉)
 - **xk264 文件头**:未经复旦 VIPcore 书面同意不得修改/再分发(仓库另称可 research/production 用)——
